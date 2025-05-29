@@ -3,6 +3,13 @@
     <h3>
       {{ card.title || card.name || "Not found" }}
       <span v-if="isUser" class="badge">Your Restaurant</span><br v-if="isUser" />
+      <a
+        v-if="card.title || card.name"
+        class="google-link"
+        :href="`https://www.google.com/search?q=${encodeURIComponent(card.title || card.name)}`"
+        target="_blank"
+        rel="noopener"
+      >🔎 Google</a>
     </h3>
     <div v-if="card.photos && card.photos.length">
       <img :src="card.photos[0]" alt="Photo" class="photo" />
@@ -109,6 +116,18 @@ export default {
   padding: 0.2em 0.6em;
   font-size: 0.8em;
   margin-left: 0.5em;
+}
+.google-link {
+  margin-left: 0.7em;
+  font-size: 0.95em;
+  color: #1761a0;
+  text-decoration: none;
+  vertical-align: middle;
+  transition: color 0.2s;
+}
+.google-link:hover {
+  color: #2d8cf0;
+  text-decoration: underline;
 }
 .photo {
   width: 100%;
