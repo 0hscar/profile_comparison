@@ -1,0 +1,33 @@
+# Python/Django
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/db.sqlite3
+*.pyc
+__pycache__/
+
+# Django migrations (optional, keep if you want to version them)
+backend/**/migrations/
+!backend/**/migrations/__init__.py
+
+# VSCode and IDE files
+.vscode/
+.idea/
+*.swp
+
+# Node/Vue
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.DS_Store
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
