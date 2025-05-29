@@ -19,60 +19,25 @@
     <div class="details">
       <h4>Your Business</h4>
       <ul>
-        <li><strong>Name:</strong> {{ results.comparison.user.name }}</li>
-        <li>
-          <strong>Reviews:</strong> {{ results.comparison.user.review_count }}
-        </li>
-        <li>
-          <strong>Average Rating:</strong>
-          {{ results.comparison.user.average_rating }}
-        </li>
-        <li>
-          <strong>Images:</strong> {{ results.comparison.user.num_images }}
-        </li>
-        <li>
-          <strong>Has Hours:</strong>
-          {{ results.comparison.user.has_hours ? "Yes" : "No" }}
-        </li>
-        <li>
-          <strong>Has Description:</strong>
-          {{ results.comparison.user.has_description ? "Yes" : "No" }}
-        </li>
-        <li>
-          <strong>Has Menu Link:</strong>
-          {{ results.comparison.user.has_menu_link ? "Yes" : "No" }}
-        </li>
-        <li>
-          <strong>Unanswered Recent Reviews:</strong>
-          {{ results.comparison.user.recent_reviews_unanswered }}
+        <li v-for="(value, key) in results.comparison.user" :key="key">
+          <strong>{{ formatKey(key) }}:</strong>
+          <span v-if="typeof value === 'boolean'">{{ value ? "Yes" : "No" }}</span>
+          <span v-else>{{ value }}</span>
         </li>
       </ul>
 
       <h4>Competitors</h4>
       <div
         v-for="comp in results.comparison.competitors"
-        :key="comp.name"
+        :key="comp.name || comp.id || comp"
         class="competitor"
       >
-        <strong>{{ comp.name }}</strong>
+        <strong>{{ comp.name || comp.id || 'Competitor' }}</strong>
         <ul>
-          <li><strong>Reviews:</strong> {{ comp.review_count }}</li>
-          <li><strong>Average Rating:</strong> {{ comp.average_rating }}</li>
-          <li><strong>Images:</strong> {{ comp.num_images }}</li>
-          <li>
-            <strong>Has Hours:</strong> {{ comp.has_hours ? "Yes" : "No" }}
-          </li>
-          <li>
-            <strong>Has Description:</strong>
-            {{ comp.has_description ? "Yes" : "No" }}
-          </li>
-          <li>
-            <strong>Has Menu Link:</strong>
-            {{ comp.has_menu_link ? "Yes" : "No" }}
-          </li>
-          <li>
-            <strong>Unanswered Recent Reviews:</strong>
-            {{ comp.recent_reviews_unanswered }}
+          <li v-for="(value, key) in comp" :key="key">
+            <strong>{{ formatKey(key) }}:</strong>
+            <span v-if="typeof value === 'boolean'">{{ value ? "Yes" : "No" }}</span>
+            <span v-else>{{ value }}</span>
           </li>
         </ul>
       </div>
@@ -94,6 +59,15 @@ export default {
       default: null,
     },
   },
+  methods: {
+    formatKey(key) {
+      // Convert snake_case or camelCase to Title Case for display
+      return key
+        .replace(/_/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/\b\w/g, l => l.toUpperCase());
+    }
+  }
 };
 </script>
 

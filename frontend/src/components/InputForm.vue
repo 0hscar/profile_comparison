@@ -3,26 +3,37 @@
     <h2>Business Profile Comparator</h2>
     <form @submit.prevent="submitForm">
       <div class="form-group">
-        <label for="business">Your Business Name</label>
+        <label for="query">Search Query</label>
         <input
-          id="business"
-          v-model="business"
+          id="query"
+          v-model="query"
           type="text"
           required
-          placeholder="e.g. My Restaurant"
+          placeholder="e.g. thai food"
         />
       </div>
       <div class="form-group">
-        <label for="competitors">Competitors (one per line)</label>
-        <textarea
-          id="competitors"
-          v-model="competitorsText"
-          rows="3"
-          placeholder="e.g. Competitor A&#10;Competitor B"
-        ></textarea>
+        <label for="location">Location</label>
+        <v-select
+          id="location"
+          :options="locationOptions"
+          v-model="location"
+          :filterable="true"
+          placeholder="Select or search location"
+        />
+      </div>
+      <div class="form-group">
+        <label for="gl">Country Code (gl)</label>
+        <v-select
+          id="gl"
+          :options="glOptions"
+          v-model="gl"
+          :filterable="true"
+          placeholder="Select or search country code"
+        />
       </div>
       <button type="submit" :disabled="loading">
-        {{ loading ? "Comparing..." : "Compare Profiles" }}
+        {{ loading ? "Searching..." : "Compare Profiles" }}
       </button>
     </form>
     <div v-if="error" class="error">{{ error }}</div>
@@ -30,14 +41,34 @@
 </template>
 
 <script>
+import vSelect from "vue3-select";
+import "vue3-select/dist/vue3-select.css";
+
 export default {
   name: "InputForm",
+  components: { vSelect },
   data() {
     return {
-      business: "",
-      competitorsText: "",
+      query: "",
+      location: null,
+      gl: null,
       loading: false,
       error: null,
+      locationOptions: [
+        "Finland",
+        "Sweden",
+        "Norway",
+        "Denmark",
+        "Germany",
+        "United States",
+        "United Kingdom",
+        "France",
+        "Italy",
+        "Spain"
+      ],
+      glOptions: [
+        "fi", "se", "no", "dk", "de", "us", "uk", "fr", "it", "es"
+      ]
     };
   },
   methods: {
@@ -45,19 +76,18 @@ export default {
       this.error = null;
       this.loading = true;
       try {
-        const competitors = this.competitorsText
-          .split("\n")
-          .map((c) => c.trim())
-          .filter((c) => c.length > 0);
-
+        if (!this.query || !this.location || !this.gl) {
+          throw new Error("Please fill in all fields.");
+        }
         const response = await fetch("/api/compare/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            business: this.business,
-            competitors,
+            query: this.query,
+            location: this.location,
+            gl: this.gl,
           }),
         });
 
@@ -95,8 +125,7 @@ label {
   margin-bottom: 0.3rem;
   font-weight: 500;
 }
-input,
-textarea {
+input {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #bbb;

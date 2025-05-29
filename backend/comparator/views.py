@@ -2,79 +2,63 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.views import View
 import json
-
+import os
+import http.client
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 # For AI integration, we'll import a utility (to be implemented)
 from .ai_utils import generate_comparison_suggestions
 
-# Mocked function to fetch business profile data
-def fetch_business_profile(business_name_or_url):
-    # In a real implementation, fetch from Google, Yelp, etc.
-    # Here we return mocked data for demonstration.
-    profiles = {
-        "My Restaurant": {
-            "name": "My Restaurant",
-            "review_count": 12,
-            "average_rating": 4.1,
-            "num_images": 3,
-            "has_hours": True,
-            "has_description": True,
-            "has_menu_link": False,
-            "recent_reviews_unanswered": 2,
-        },
-        "Competitor A": {
-            "name": "Competitor A",
-            "review_count": 34,
-            "average_rating": 4.5,
-            "num_images": 18,
-            "has_hours": True,
-            "has_description": True,
-            "has_menu_link": True,
-            "recent_reviews_unanswered": 0,
-        },
-        "Competitor B": {
-            "name": "Competitor B",
-            "review_count": 28,
-            "average_rating": 4.3,
-            "num_images": 22,
-            "has_hours": True,
-            "has_description": False,
-            "has_menu_link": True,
-            "recent_reviews_unanswered": 1,
-        },
-    }
-    return profiles.get(business_name_or_url, {
-        "name": business_name_or_url,
-        "review_count": 0,
-        "average_rating": 0.0,
-        "num_images": 0,
-        "has_hours": False,
-        "has_description": False,
-        "has_menu_link": False,
-        "recent_reviews_unanswered": 0,
+# Function to fetch business profiles from Serper.dev API
+def fetch_business_profiles_from_serper(query, location, gl="us"):
+    conn = http.client.HTTPSConnection("google.serper.dev")
+    payload = json.dumps({
+        "q": query,
+        "location": location,
+        "gl": gl
     })
+    headers = {
+        'X-API-KEY': os.environ.get('SERPER_API_KEY', ''), # Replace with your own serper API key in .env file
+        'Content-Type': 'application/json'
+    }
+    conn.request("POST", "/places", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
+    try:
+        results = json.loads(data.decode("utf-8"))
+        return results
+    except Exception:
+        return {}
+
+def extract_profile_from_serper_result(place):
+    # Return all fields from the place result as-is (dynamic extraction)
+    return dict(place)
 
 def compare_profiles(user_profile, competitor_profiles):
-    # Calculate averages and identify missing fields
+    # Dynamically calculate averages for all numeric fields present in competitor profiles
     if not competitor_profiles:
         return {}
 
-    avg_review_count = sum(p["review_count"] for p in competitor_profiles) / len(competitor_profiles)
-    avg_rating = sum(p["average_rating"] for p in competitor_profiles) / len(competitor_profiles)
-    avg_images = sum(p["num_images"] for p in competitor_profiles) / len(competitor_profiles)
-    avg_unanswered = sum(p["recent_reviews_unanswered"] for p in competitor_profiles) / len(competitor_profiles)
+    # Collect all keys from all competitor profiles
+    all_keys = set()
+    for p in competitor_profiles:
+        all_keys.update(p.keys())
 
-    fields = ["has_hours", "has_description", "has_menu_link"]
-    competitor_field_presence = {field: any(p[field] for p in competitor_profiles) for field in fields}
+    # Only average numeric fields
+    averages = {}
+    for key in all_keys:
+        values = [p[key] for p in competitor_profiles if key in p and isinstance(p[key], (int, float))]
+        if values:
+            averages[key] = sum(values) / len(values)
+
+    # For boolean fields, show if any competitor has it True
+    bool_fields = [k for k in all_keys if any(isinstance(p.get(k), bool) for p in competitor_profiles)]
+    competitor_field_presence = {field: any(p.get(field, False) for p in competitor_profiles) for field in bool_fields}
 
     comparison = {
         "user": user_profile,
         "competitors": competitor_profiles,
-        "averages": {
-            "review_count": avg_review_count,
-            "average_rating": avg_rating,
-            "num_images": avg_images,
-            "recent_reviews_unanswered": avg_unanswered,
-        },
+        "averages": averages,
         "competitor_field_presence": competitor_field_presence,
     }
     return comparison
@@ -86,13 +70,24 @@ def compare_view(request):
 
     try:
         data = json.loads(request.body)
-        business = data.get("business")
-        competitors = data.get("competitors", [])
+        query = data.get("query")  # e.g., "thai food"
+        location = data.get("location")  # e.g., "Finland"
+        gl = data.get("gl", "us")
+        if not query or not location:
+            return JsonResponse({"error": "Missing query or location"}, status=400)
     except Exception:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    user_profile = fetch_business_profile(business)
-    competitor_profiles = [fetch_business_profile(name) for name in competitors]
+    # Fetch places from Serper.dev
+    serper_results = fetch_business_profiles_from_serper(query, location, gl)
+    places = serper_results.get("places", [])
+
+    if not places:
+        return JsonResponse({"error": "No results found"}, status=404)
+
+    # Assume the first result is the user's business, others are competitors
+    user_profile = extract_profile_from_serper_result(places[0])
+    competitor_profiles = [extract_profile_from_serper_result(p) for p in places[1:]]
 
     comparison = compare_profiles(user_profile, competitor_profiles)
     suggestions = generate_comparison_suggestions(comparison, competitor_profiles)
