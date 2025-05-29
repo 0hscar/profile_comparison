@@ -131,8 +131,6 @@ def compare_profiles(user_profile, competitor_profiles):
    return comparison
 
 
-SVENSKA_TEATERN_LOCATION = "Mikonkatu 2, 00100 Helsinki, Finland" # Mock data, location for users restaurant
-
 def combine_all_info_for_place(place, search_data):
     """
     Combine all available info from /places and /search for a single place.
@@ -188,15 +186,19 @@ def combine_all_info_for_place(place, search_data):
 
 def get_places_and_cards(query=None, location=None, gl="us", num_places=5):
     """
-    If query is None, use default mock location (Svenska Teatern) and fetch nearby restaurants.
+    If query is None, use the first entry as the simulated user's restaurant location and fetch nearby restaurants.
     Otherwise, use the query and location provided.
     Returns a list of cards (dicts) for each place.
     """
     if not location:
-        location = SVENSKA_TEATERN_LOCATION
+        # No location provided: will be set dynamically by caller based on first entry
+        location = None
     if not query:
         # Default: fetch nearby restaurants (e.g., "restaurant" or "ravintola")
         query = "restaurant"
+    if location is None:
+        # If location is still None, return empty list (should be set by caller)
+        return []
     serper_places = fetch_business_profiles_from_serper(query, location, gl)
     places = serper_places.get("places", [])[:num_places]
     serper_search = fetch_business_search_from_serper(query, location, gl)
@@ -206,15 +208,31 @@ def get_places_and_cards(query=None, location=None, gl="us", num_places=5):
         cards.append(card)
     return cards
 
-def get_comparison_and_suggestions(cards):
+def get_comparison_and_suggestions(cards, user_business_name=None, user_business_location=None):
     """
-    Use the first card as the user's business, the rest as competitors.
+    Use the specified business as the user's business, the rest as competitors.
+    If not found, default to Stefan's Steakhouse in Helsinki.
     Returns comparison and AI suggestions.
     """
     if not cards:
         return {}, {}
-    user_profile = cards[0]
-    competitor_profiles = cards[1:]
+    # Set defaults if not provided
+    if not user_business_name:
+        user_business_name = "Stefan's Steakhouse"
+    if not user_business_location:
+        user_business_location = "Helsinki"
+    # Try to find the user's business in cards
+    user_profile = None
+    for card in cards:
+        if (
+            user_business_name.lower() in card.get("title", "").lower()
+            and user_business_location.lower() in card.get("address", "").lower()
+        ):
+            user_profile = card
+            break
+    if not user_profile:
+        user_profile = cards[0]
+    competitor_profiles = [c for c in cards if c != user_profile]
     comparison = compare_profiles(user_profile, competitor_profiles)
     suggestions = generate_comparison_suggestions(comparison, competitor_profiles)
     return comparison, suggestions
@@ -225,6 +243,7 @@ def generate_comparison_suggestions(comparison, competitors_profiles):
     Returns a dict with the summary/suggestions and a visible note about which AI was used.
     """
     openai_api_key = os.environ.get("OPENAI_API_KEY")
+    print("OpenAI API Key:", openai_api_key)
     if not openai_api_key:
         # fallback to mock if no key
         from .ai_utils import generate_comparison_suggestions as mock_ai
@@ -240,7 +259,7 @@ def generate_comparison_suggestions(comparison, competitors_profiles):
     )
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4.1-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful business profile consultant."},
                 {"role": "user", "content": prompt}
@@ -271,25 +290,68 @@ def compare_view(request):
         mode = data.get("mode", "default")  # "default" or "search"
         gl = data.get("gl", "us")
         num_places = int(data.get("num_places", 5))
-        if mode == "search":
-            query = data.get("query")
-            location = data.get("location")
-            if not query or not location:
-                return JsonResponse({"error": "Missing query or location"}, status=400)
-            cards = get_places_and_cards(query=query, location=location, gl=gl, num_places=num_places)
+        user_business_name = data.get("user_business_name")
+        user_business_location = data.get("user_business_location")
+        query = data.get("query")
+        location = data.get("location")
+
+        # Prepare arrays for response
+        nearby_restaurants = []
+        search_results = []
+
+        # Only proceed if user restaurant info is provided
+        user_card = None
+        if user_business_name and user_business_location:
+            # Find the user's restaurant
+            user_cards = get_places_and_cards(query=user_business_name, location=user_business_location, gl=gl, num_places=1)
+            if user_cards:
+                user_card = user_cards[0]
+                # Find nearby restaurants (generic "restaurant" query)
+                user_location = user_card.get("address", None)
+                if user_location:
+                    nearby_restaurants = get_places_and_cards(query="restaurant", location=user_location, gl=gl, num_places=num_places)
+                    # Remove the user_card from nearby_restaurants if present
+                    nearby_restaurants = [c for c in nearby_restaurants if not (
+                        user_card.get("title", "").lower() == c.get("title", "").lower() and
+                        user_card.get("address", "").lower() == c.get("address", "").lower()
+                    )]
+                    # Add user_card as the first entry in nearby_restaurants
+                    nearby_restaurants = [user_card] + nearby_restaurants
+                # Find search results using the passed query/location (if provided)
+                if query and location:
+                    search_results = get_places_and_cards(query=query, location=location, gl=gl, num_places=num_places)
+                    # Remove the user_card from search_results if present
+                    search_results = [c for c in search_results if not (
+                        user_card.get("title", "").lower() == c.get("title", "").lower() and
+                        user_card.get("address", "").lower() == c.get("address", "").lower()
+                    )]
+                    # Prepend user_card to search_results
+                    search_results = [user_card] + search_results
+                else:
+                    # If no query/location, just use user_card as the only search result
+                    search_results = [user_card]
+            else:
+                # If user card not found, return error
+                return JsonResponse({"error": "User restaurant not found with the given name and location."}, status=404)
         else:
-            # Default: show 2-5 restaurants near Svenska Teatern
-            cards = get_places_and_cards(query=None, location=None, gl=gl, num_places=num_places)
+            # If no user business specified, require user to select one first
+            return JsonResponse({"error": "User restaurant (name and location) must be specified."}, status=400)
+
     except Exception:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    if not cards:
+    if not search_results:
         return JsonResponse({"error": "No results found"}, status=404)
 
-    comparison, suggestions = get_comparison_and_suggestions(cards)
+    comparison, suggestions = get_comparison_and_suggestions(
+        search_results,
+        user_business_name=user_business_name,
+        user_business_location=user_business_location
+    )
 
     return JsonResponse({
-        "cards": cards,
+        "nearby_restaurants": nearby_restaurants,
+        "search_results": search_results,
         "comparison": comparison,
         "suggestions": suggestions,
     })

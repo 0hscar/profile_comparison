@@ -36,6 +36,36 @@
         >
         <h1>Business Profile Comparator</h1>
       </div>
+      <div class="business-fields-row">
+        <div class="form-group">
+          <label for="user_business_name">Your Business Name</label>
+          <input
+            id="user_business_name"
+            v-model="userBusinessName"
+            type="text"
+            placeholder="Stefan's Steakhouse"
+          />
+        </div>
+        <div class="form-group">
+          <label for="user_business_location">Your Business Location</label>
+          <input
+            id="user_business_location"
+            v-model="userBusinessLocation"
+            type="text"
+            placeholder="Helsinki, Finland"
+          />
+        </div>
+        <AppButton
+          class="update-business-btn"
+          variant="primary"
+          :disabled="updatingNearby"
+          @click="updateBusiness"
+        >
+          {{ updatingNearby ? "Updating..." : "Update Business" }}
+        </AppButton>
+        <!-- Fix, currently makes UI goofy -->
+        <p>If you want to change simulated user restaurant</p>
+      </div>
       <div class="dashboard-layout">
         <!-- Sidebar: Default/Closest Results -->
         <aside class="sidebar">
@@ -43,15 +73,9 @@
             <h2>Nearby Restaurants</h2>
           </div>
           <div class="sidebar-content">
-            <div
-              v-if="
-                defaultResults &&
-                defaultResults.cards &&
-                defaultResults.cards.length
-              "
-            >
+            <div v-if="defaultNearby && defaultNearby.length">
               <RestaurantCard
-                v-for="(card, idx) in defaultResults.cards"
+                v-for="(card, idx) in defaultNearby"
                 :key="card.place_id || card.title || idx"
                 :card="card"
                 :isUser="idx === 0"
@@ -64,10 +88,17 @@
         </aside>
         <!-- Main: Search and Results -->
         <main class="main-content">
-          <InputForm @comparison-result="handleResults" @reset="resetAll" />
+          <InputForm
+            @comparison-result="handleResults"
+            @reset="resetAll"
+            :userBusinessName="userBusinessName"
+            :userBusinessLocation="userBusinessLocation"
+          />
           <ProfileResults
-            v-if="searchResults"
-            :results="searchResults"
+            v-if="searchResults && searchResults.length"
+            :searchResults="searchResults"
+            :comparison="comparison"
+            :suggestions="suggestions"
             @reset="resetAll"
           />
         </main>
@@ -93,30 +124,54 @@ export default {
   components: { InputForm, ProfileResults, RestaurantCard, AppButton },
   data() {
     return {
-      defaultResults: null,
-      searchResults: null,
+      defaultNearby: [],
+      defaultComparison: null,
+      defaultSuggestions: null,
+      searchResults: [],
+      comparison: null,
+      suggestions: null,
       showComparator: false,
+      userBusinessName: "Stefan's Steakhouse",
+      userBusinessLocation: "Helsinki, Finland",
+      updatingNearby: false,
     };
   },
   methods: {
     async fetchDefault() {
-      this.defaultResults = null;
+      this.defaultNearby = [];
+      this.updatingNearby = true;
+      const payload = {
+        mode: "search",
+        user_business_name: this.userBusinessName || "Stefan's Steakhouse",
+        user_business_location:
+          this.userBusinessLocation || "Helsinki, Finland",
+        num_places: 5,
+      };
       const response = await fetch("/api/compare/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "default" }),
+        body: JSON.stringify(payload),
       });
-      this.defaultResults = await response.json();
+      const data = await response.json();
+      this.defaultNearby = data.nearby_restaurants || [];
+      this.defaultComparison = data.comparison || null;
+      this.defaultSuggestions = data.suggestions || null;
+      this.updatingNearby = false;
+    },
+    updateBusiness() {
+      this.fetchDefault();
     },
     handleResults(data) {
-      this.searchResults = data;
+      this.searchResults = data.search_results || [];
+      this.comparison = data.comparison || null;
+      this.suggestions = data.suggestions || null;
     },
     resetAll() {
       this.searchResults = null;
+      this.comparison = null;
+      this.suggestions = null;
+      this.fetchDefault();
     },
-  },
-  mounted() {
-    this.fetchDefault();
   },
 };
 </script>
@@ -153,7 +208,6 @@ export default {
   justify-content: center;
   margin-bottom: 3rem;
 }
-
 .block {
   background: #fff;
   border-radius: 8px;
@@ -227,6 +281,22 @@ export default {
   margin: 0;
   font-size: 2rem;
   color: #2d8cf0;
+}
+.business-fields-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding: 1.2rem 2.5rem 0.5rem 2.5rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e6eaf0;
+  z-index: 9;
+}
+.business-fields-row .form-group {
+  margin-bottom: 0;
+}
+.update-business-btn {
+  margin-bottom: 0.2rem;
+  height: 2.5rem;
 }
 .close-btn {
   position: static;

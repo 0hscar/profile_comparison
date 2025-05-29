@@ -33,19 +33,15 @@
         />
       </div>
       <div class="button-row">
-        <AppButton
-          type="submit"
-          :disabled="loading"
-        >
-          {{ loading ? "Searching..." : "Compare Profiles" }}
-        </AppButton>
-        <AppButton
-          type="button"
-          variant="secondary"
-          @click="$emit('reset')"
-        >
-          Back to Default
-        </AppButton>
+
+        <div class="button-row">
+          <AppButton type="submit" :disabled="loading">
+            {{ loading ? "Searching..." : "Compare Profiles" }}
+          </AppButton>
+          <AppButton type="button" variant="secondary" @click="$emit('reset')">
+            Back to Default
+          </AppButton>
+        </div>
       </div>
     </form>
     <div v-if="error" class="error">{{ error }}</div>
@@ -58,32 +54,42 @@ import "vue3-select/dist/vue3-select.css";
 import AppButton from "./AppButton.vue";
 
 export default {
-  name: "InputForm",
-  components: { vSelect, AppButton },
-  data() {
-    return {
-      query: "",
-      location: null,
-      gl: null,
-      loading: false,
-      error: null,
-      locationOptions: [
-        "Finland",
-        "Sweden",
-        "Norway",
-        "Denmark",
-        "Germany",
-        "United States",
-        "United Kingdom",
-        "France",
-        "Italy",
-        "Spain"
-      ],
-      glOptions: [
-        "fi", "se", "no", "dk", "de", "us", "uk", "fr", "it", "es"
-      ]
-    };
-  },
+ name: "InputForm",
+ components: { vSelect, AppButton },
+ props: {
+   userBusinessName: {
+     type: String,
+     required: true
+   },
+   userBusinessLocation: {
+     type: String,
+     required: true
+   }
+ },
+ data() {
+   return {
+     query: "",
+     location: null,
+     gl: null,
+     loading: false,
+     error: null,
+     locationOptions: [
+       "Finland",
+       "Sweden",
+       "Norway",
+       "Denmark",
+       "Germany",
+       "United States",
+       "United Kingdom",
+       "France",
+       "Italy",
+       "Spain"
+     ],
+     glOptions: [
+       "fi", "se", "no", "dk", "de", "us", "uk", "fr", "it", "es"
+     ]
+   };
+ },
   methods: {
     async submitForm() {
       this.error = null;
@@ -92,17 +98,22 @@ export default {
         if (!this.query || !this.location || !this.gl) {
           throw new Error("Please fill in all fields.");
         }
+        // Always pass user_business_name and user_business_location, using values from props
+        const payload = {
+          mode: "search",
+          query: this.query,
+          location: this.location,
+          gl: this.gl,
+          user_business_name: this.userBusinessName,
+          user_business_location: this.userBusinessLocation,
+        };
+
         const response = await fetch("/api/compare/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            mode: "search",
-            query: this.query,
-            location: this.location,
-            gl: this.gl,
-          }),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {

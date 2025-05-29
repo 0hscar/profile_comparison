@@ -1,11 +1,11 @@
 <template>
-  <div v-if="results" class="results-container">
+  <div v-if="searchResults && searchResults.length" class="results-container">
     <!-- Restaurant Cards (Search Results) -->
-    <div v-if="results.cards && results.cards.length">
+    <div>
       <h2>Restaurants</h2>
       <div>
         <RestaurantCard
-          v-for="(card, idx) in results.cards"
+          v-for="(card, idx) in searchResults"
           :key="card.place_id || card.title || idx"
           :card="card"
           :isUser="idx === 0"
@@ -15,21 +15,21 @@
 
     <h2>Comparison Summary</h2>
     <div class="summary">
-      <p v-if="results.suggestions.ai_summary">{{ results.suggestions.ai_summary }}</p>
-      <p v-else-if="results.suggestions.summary">{{ results.suggestions.summary }}</p>
+      <p v-if="suggestions && suggestions.ai_summary">{{ suggestions.ai_summary }}</p>
+      <p v-else-if="suggestions && suggestions.summary">{{ suggestions.summary }}</p>
     </div>
 
-    <div v-if="results.suggestions.ai_provider || results.suggestions.ai_note" class="ai-meta">
+    <div v-if="suggestions && (suggestions.ai_provider || suggestions.ai_note)" class="ai-meta">
       <p>
-        <span v-if="results.suggestions.ai_provider"><strong>AI Provider:</strong> {{ results.suggestions.ai_provider }}. </span>
-        <span v-if="results.suggestions.ai_note"><strong>Note:</strong> {{ results.suggestions.ai_note }} (applies to both summary and suggestions)</span>
+        <span v-if="suggestions.ai_provider"><strong>AI Provider:</strong> {{ suggestions.ai_provider }}. </span>
+        <span v-if="suggestions.ai_note"><strong>Note:</strong> {{ suggestions.ai_note }} (applies to both summary and suggestions)</span>
       </p>
     </div>
 
     <h3>Suggestions</h3>
     <ul>
       <li
-        v-for="(suggestion, idx) in results.suggestions.suggestions"
+        v-for="(suggestion, idx) in (suggestions && suggestions.suggestions ? suggestions.suggestions : [])"
         :key="idx"
       >
         {{ suggestion }}
@@ -41,15 +41,15 @@
       <h4>Your Business</h4>
       <div class="your-restaurant-row">
         <RestaurantCard
-          v-if="results.comparison && results.comparison.user"
-          :card="results.comparison.user"
+          v-if="comparison && comparison.user"
+          :card="comparison.user"
           :isUser="true"
         />
       </div>
 
       <h4>Competitors</h4>
       <div
-        v-for="(comp, idx) in results.comparison.competitors"
+        v-for="(comp, idx) in (comparison && comparison.competitors ? comparison.competitors : [])"
         :key="comp.name || comp.id || idx"
         class="competitor"
       >
@@ -77,7 +77,17 @@ export default {
   name: "ProfileResults",
   components: { RestaurantCard, AppButton },
   props: {
-    results: {
+    searchResults: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    comparison: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    suggestions: {
       type: Object,
       required: false,
       default: null,
