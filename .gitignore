@@ -7,6 +7,7 @@ backend/db.sqlite3
 __pycache__/
 
 # Django migrations (optional, keep if you want to version them)
+# For future uses
 backend/**/migrations/
 !backend/**/migrations/__init__.py
 
