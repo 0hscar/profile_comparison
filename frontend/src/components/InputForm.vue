@@ -1,5 +1,5 @@
 <template>
-  <div class="input-form">
+  <div class="input-form responsive-search-form">
     <h2>Business Profile Comparator</h2>
     <form @submit.prevent="submitForm">
       <div class="form-group">
@@ -32,9 +32,21 @@
           placeholder="Select or search country code"
         />
       </div>
-      <button type="submit" :disabled="loading">
-        {{ loading ? "Searching..." : "Compare Profiles" }}
-      </button>
+      <div class="button-row">
+        <AppButton
+          type="submit"
+          :disabled="loading"
+        >
+          {{ loading ? "Searching..." : "Compare Profiles" }}
+        </AppButton>
+        <AppButton
+          type="button"
+          variant="secondary"
+          @click="$emit('reset')"
+        >
+          Back to Default
+        </AppButton>
+      </div>
     </form>
     <div v-if="error" class="error">{{ error }}</div>
   </div>
@@ -43,10 +55,11 @@
 <script>
 import vSelect from "vue3-select";
 import "vue3-select/dist/vue3-select.css";
+import AppButton from "./AppButton.vue";
 
 export default {
   name: "InputForm",
-  components: { vSelect },
+  components: { vSelect, AppButton },
   data() {
     return {
       query: "",
@@ -85,6 +98,7 @@ export default {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            mode: "search",
             query: this.query,
             location: this.location,
             gl: this.gl,
@@ -149,5 +163,18 @@ button:disabled {
   color: #d93025;
   margin-top: 1rem;
   text-align: center;
+}
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.button-row .app-btn {
+  min-width: 120px;
+  max-width: 180px;
+  font-size: 1rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 4px;
 }
 </style>

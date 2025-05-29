@@ -1,5 +1,18 @@
 <template>
   <div v-if="results" class="results-container">
+    <!-- Restaurant Cards (Search Results) -->
+    <div v-if="results.cards && results.cards.length">
+      <h2>Restaurants</h2>
+      <div>
+        <RestaurantCard
+          v-for="(card, idx) in results.cards"
+          :key="card.place_id || card.title || idx"
+          :card="card"
+          :isUser="idx === 0"
+        />
+      </div>
+    </div>
+
     <h2>Comparison Summary</h2>
     <div class="summary">
       <p v-if="results.suggestions.ai_summary">{{ results.suggestions.ai_summary }}</p>
@@ -14,68 +27,71 @@
     </div>
 
     <h3>Suggestions</h3>
-   <ul>
-     <li
-       v-for="(suggestion, idx) in results.suggestions.suggestions"
-       :key="idx"
-     >
-       {{ suggestion }}
-     </li>
-   </ul>
+    <ul>
+      <li
+        v-for="(suggestion, idx) in results.suggestions.suggestions"
+        :key="idx"
+      >
+        {{ suggestion }}
+      </li>
+    </ul>
 
-   <h3>Details</h3>
-   <div class="details">
-     <h4>Your Business</h4>
-     <ul>
-       <li v-for="(value, key) in results.comparison.user" :key="key">
-         <strong>{{ formatKey(key) }}:</strong>
-         <span v-if="typeof value === 'boolean'">{{ value ? "Yes" : "No" }}</span>
-         <span v-else>{{ value }}</span>
-       </li>
-     </ul>
+    <h3>Details</h3>
+    <div class="details">
+      <h4>Your Business</h4>
+      <div class="your-restaurant-row">
+        <RestaurantCard
+          v-if="results.comparison && results.comparison.user"
+          :card="results.comparison.user"
+          :isUser="true"
+        />
+      </div>
 
-     <h4>Competitors</h4>
-     <div
-       v-for="comp in results.comparison.competitors"
-       :key="comp.name || comp.id || comp"
-       class="competitor"
-     >
-       <strong>{{ comp.name || comp.id || 'Competitor' }}</strong>
-       <ul>
-         <li v-for="(value, key) in comp" :key="key">
-           <strong>{{ formatKey(key) }}:</strong>
-           <span v-if="typeof value === 'boolean'">{{ value ? "Yes" : "No" }}</span>
-           <span v-else>{{ value }}</span>
-         </li>
-       </ul>
-     </div>
-   </div>
-   <button @click="$emit('reset')">Compare Another</button>
- </div>
- <div v-else class="loading">
-   <p>Loading results...</p>
- </div>
+      <h4>Competitors</h4>
+      <div
+        v-for="(comp, idx) in results.comparison.competitors"
+        :key="comp.name || comp.id || idx"
+        class="competitor"
+      >
+        <RestaurantCard :card="comp" :isUser="false" />
+      </div>
+    </div>
+    <AppButton
+      variant="primary"
+      block
+      @click="$emit('reset')"
+      style="margin-top: 2rem;"
+    >
+      Compare Another
+    </AppButton>
+  </div>
+  <div v-else class="loading">
+    <p>Loading results...</p>
+  </div>
 </template>
 
 <script>
+import RestaurantCard from "./RestaurantCard.vue";
+import AppButton from "./AppButton.vue";
 export default {
- name: "ProfileResults",
- props: {
-   results: {
-     type: Object,
-     required: false,
-     default: null,
-   },
- },
- methods: {
-   formatKey(key) {
-     // Convert snake_case or camelCase to Title Case for display
-     return key
-       .replace(/_/g, ' ')
-       .replace(/([a-z])([A-Z])/g, '$1 $2')
-       .replace(/\b\w/g, l => l.toUpperCase());
-   }
- }
+  name: "ProfileResults",
+  components: { RestaurantCard, AppButton },
+  props: {
+    results: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+  },
+  methods: {
+    formatKey(key) {
+      // Convert snake_case or camelCase to Title Case for display
+      return key
+        .replace(/_/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/\b\w/g, l => l.toUpperCase());
+    }
+  }
 };
 </script>
 
