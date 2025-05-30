@@ -70,19 +70,46 @@
         <!-- Sidebar: Default/Closest Results -->
         <aside class="sidebar">
           <div class="sidebar-sticky-header">
-            <h2>Nearby Restaurants</h2>
+            <div class="toggle-group">
+              <button
+                :class="['toggle-btn', { active: showNearby }]"
+                @click="toggleRestaurantGroup('nearby')"
+                type="button"
+              >
+                Nearby
+              </button>
+              <button
+                :class="['toggle-btn', { active: !showNearby }]"
+                @click="toggleRestaurantGroup('similar')"
+                type="button"
+              >
+                Similar
+              </button>
+            </div>
+            <h2>
+              {{ showNearby ? "Nearby Restaurants" : "Similar Restaurants" }}
+            </h2>
           </div>
           <div class="sidebar-content">
-            <div v-if="defaultNearby && defaultNearby.length">
+            <div
+              v-if="
+                (showNearby ? defaultNearby : defaultSimilar) &&
+                (showNearby ? defaultNearby.length : defaultSimilar.length)
+              "
+            >
               <RestaurantCard
-                v-for="(card, idx) in defaultNearby"
+                v-for="(card, idx) in showNearby
+                  ? defaultNearby
+                  : defaultSimilar"
                 :key="card.place_id || card.title || idx"
                 :card="card"
                 :isUser="idx === 0"
               />
             </div>
             <div v-else class="loading">
-              <p>Loading nearby restaurants...</p>
+              <p>
+                Loading {{ showNearby ? "nearby" : "similar" }} restaurants...
+              </p>
             </div>
           </div>
         </aside>
@@ -125,8 +152,8 @@ export default {
   data() {
     return {
       defaultNearby: [],
-      defaultComparison: null,
-      defaultSuggestions: null,
+      defaultSimilar: [],
+      defaultUserBusiness: null,
       searchResults: [],
       comparison: null,
       suggestions: null,
@@ -134,28 +161,30 @@ export default {
       userBusinessName: "Stefan's Steakhouse",
       userBusinessLocation: "Helsinki, Finland",
       updatingNearby: false,
+      showNearby: true, // true = show nearby, false = show similar
     };
   },
   methods: {
     async fetchDefault() {
       this.defaultNearby = [];
+      this.defaultSimilar = [];
+      this.defaultUserBusiness = null;
       this.updatingNearby = true;
       const payload = {
-        mode: "search",
         user_business_name: this.userBusinessName || "Stefan's Steakhouse",
         user_business_location:
           this.userBusinessLocation || "Helsinki, Finland",
         num_places: 5,
       };
-      const response = await fetch("/api/compare/", {
+      const response = await fetch("/api/fetch_restaurant_groups/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await response.json();
       this.defaultNearby = data.nearby_restaurants || [];
-      this.defaultComparison = data.comparison || null;
-      this.defaultSuggestions = data.suggestions || null;
+      this.defaultSimilar = data.similar_restaurants || [];
+      this.defaultUserBusiness = data.user_business || null;
       this.updatingNearby = false;
     },
     updateBusiness() {
@@ -171,6 +200,9 @@ export default {
       this.comparison = null;
       this.suggestions = null;
       this.fetchDefault();
+    },
+    toggleRestaurantGroup(group) {
+      this.showNearby = group === "nearby";
     },
   },
 };
@@ -417,5 +449,26 @@ export default {
   padding: 0.6rem 1.2rem;
   align-self: flex-start;
   margin-bottom: 0.5rem;
+}
+.toggle-group {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.toggle-btn {
+  background: #e6eaf0;
+  color: #2d8cf0;
+  border: none;
+  border-radius: 4px 4px 0 0;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.toggle-btn.active,
+.toggle-btn:hover {
+  background: #2d8cf0;
+  color: #fff;
 }
 </style>

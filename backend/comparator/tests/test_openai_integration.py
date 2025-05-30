@@ -2,7 +2,7 @@ import os
 import pytest
 from unittest.mock import patch, MagicMock
 
-from comparator.views import generate_comparison_suggestions
+from comparator.utils.ai_utils import generate_comparison_suggestions
 
 @pytest.fixture
 def comparison_data():
