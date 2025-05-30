@@ -69,41 +69,37 @@
       <div class="dashboard-layout">
         <!-- Sidebar: Default/Closest Results -->
         <aside class="sidebar">
-          <div class="sidebar-sticky-header">
-            <div class="toggle-group">
-              <button
-                :class="['toggle-btn', { active: showNearby }]"
-                @click="toggleRestaurantGroup('nearby')"
-                type="button"
-              >
-                Nearby
-              </button>
-              <button
-                :class="['toggle-btn', { active: !showNearby }]"
-                @click="toggleRestaurantGroup('similar')"
-                type="button"
-              >
-                Similar
-              </button>
-            </div>
-            <h2>
-              {{ showNearby ? "Nearby Restaurants" : "Similar Restaurants" }}
-            </h2>
-          </div>
           <div class="sidebar-content">
-            <div
-              v-if="
-                (showNearby ? defaultNearby : defaultSimilar) &&
-                (showNearby ? defaultNearby.length : defaultSimilar.length)
-              "
-            >
+            <div v-if="defaultUserBusiness" class="sidebar-sticky-controls">
+              <RestaurantCard :card="defaultUserBusiness" :isUser="true" />
+              <div class="toggle-group" style="margin-top: 1rem">
+                <button
+                  :class="['toggle-btn', { active: showNearby }]"
+                  @click="toggleRestaurantGroup('nearby')"
+                  type="button"
+                >
+                  Nearby
+                </button>
+                <button
+                  :class="['toggle-btn', { active: !showNearby }]"
+                  @click="toggleRestaurantGroup('similar')"
+                  type="button"
+                >
+                  Similar
+                </button>
+              </div>
+              <h2 style="margin-top: 0.5rem">
+                {{ showNearby ? "Nearby Restaurants" : "Similar Restaurants" }}
+              </h2>
+            </div>
+            <div v-if="(showNearby ? defaultNearby : defaultSimilar).length">
               <RestaurantCard
                 v-for="(card, idx) in showNearby
                   ? defaultNearby
                   : defaultSimilar"
                 :key="card.place_id || card.title || idx"
                 :card="card"
-                :isUser="idx === 0"
+                :isUser="false"
               />
             </div>
             <div v-else class="loading">
@@ -164,16 +160,33 @@ export default {
       showNearby: true, // true = show nearby, false = show similar
     };
   },
+
   methods: {
-    async fetchDefault() {
-      this.defaultNearby = [];
-      this.defaultSimilar = [];
-      this.defaultUserBusiness = null;
-      this.updatingNearby = true;
+    async fetchUserRestaurant() {
+      // Fetch only the user's restaurant card
       const payload = {
         user_business_name: this.userBusinessName || "Stefan's Steakhouse",
         user_business_location:
           this.userBusinessLocation || "Helsinki, Finland",
+      };
+      const response = await fetch("/api/fetch_user_restaurant/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      this.defaultUserBusiness = data.user_restaurant || null;
+    },
+    async fetchDefault() {
+      this.defaultNearby = [];
+      this.defaultSimilar = [];
+      this.updatingNearby = true;
+      const payload = {
+        // Manually inserted for now
+        user_business_name: this.userBusinessName || "Stefan's Steakhouse",
+        user_business_location:
+          this.userBusinessLocation || "Helsinki, Finland",
+        user_business_category: "restaurant",
         num_places: 5,
       };
       const response = await fetch("/api/fetch_restaurant_groups/", {
@@ -184,10 +197,10 @@ export default {
       const data = await response.json();
       this.defaultNearby = data.nearby_restaurants || [];
       this.defaultSimilar = data.similar_restaurants || [];
-      this.defaultUserBusiness = data.user_business || null;
       this.updatingNearby = false;
     },
     updateBusiness() {
+      this.fetchUserRestaurant();
       this.fetchDefault();
     },
     handleResults(data) {
@@ -199,11 +212,16 @@ export default {
       this.searchResults = null;
       this.comparison = null;
       this.suggestions = null;
+      this.fetchUserRestaurant();
       this.fetchDefault();
     },
     toggleRestaurantGroup(group) {
       this.showNearby = group === "nearby";
     },
+  },
+  mounted() {
+    this.fetchUserRestaurant();
+    this.fetchDefault();
   },
 };
 </script>
@@ -455,6 +473,15 @@ export default {
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.sidebar-sticky-controls {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: #f5f8fa;
+  padding-top: 1rem;
+  box-shadow: 0 2px 8px #0001;
 }
 .toggle-btn {
   background: #e6eaf0;

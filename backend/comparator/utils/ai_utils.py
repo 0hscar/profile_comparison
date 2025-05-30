@@ -1,8 +1,11 @@
 print("ai_utils.py loaded")
 import os
 from dotenv import load_dotenv
+from django.http import JsonResponse
 import json
 import openai
+import re
+
 
 # Load .env file from the backend directory
 def compare_profiles(user_profile, competitor_profiles):
@@ -124,3 +127,60 @@ def generate_comparison_suggestions(comparison, competitors_profiles):
             "ai_provider": "error",
             "ai_note": "OpenAI call failed, see ai_summary for error."
         }
+
+
+def extract_json_from_response(content):
+    """
+    Extract JSON from a string, handling markdown code blocks if present.
+    """
+    # Try to extract JSON from markdown code block if present
+    match = re.search(r'```(?:json)?\s*([\s\S]+?)\s*```', content)
+    if match:
+        json_str = match.group(1)
+    else:
+        json_str = content
+
+    # Strip whitespace and try to parse
+    json_str = json_str.strip()
+    # print("Parsing this JSON string:", repr(json_str))
+    return json.loads(json_str)
+
+
+def sendToAI(prompt):
+    # Universal function to send a prompt to OpenAI and return the response.
+    ai_api_key = os.environ.get("OPENAI_API_KEY")
+    if not ai_api_key:
+        return JsonResponse({
+            "error": "OpenAI API key not configured."
+        }, status=500)
+    try:
+        client = openai.OpenAI(api_key=ai_api_key)
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "system", "content": "You are a business profile consultant."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=5000,
+            temperature=0.7,
+        )
+        content = response.choices[0].message.content
+        print("Total tokens: ", response.usage.total_tokens)
+        # Check if the response is valid JSON
+        try:
+            result = extract_json_from_response(content)
+
+            return JsonResponse(result, status=200)
+        except Exception as e:
+            print("Exception in sendToAI", e)
+            return JsonResponse({
+                "error": "OpenAI did not return valid JSON / TOKEN LIMIT REACHED",
+                "raw_response": content,
+                "exception": str(e)
+            }, status=500)
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({
+            "error": f"OpenAI API call failed: {str(e)}"
+        }, status=500)
