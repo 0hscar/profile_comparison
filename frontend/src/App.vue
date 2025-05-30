@@ -103,6 +103,7 @@
               />
             </div>
             <div v-else class="loading">
+              <div class="spinner"></div>
               <p>
                 Loading {{ showNearby ? "nearby" : "similar" }} restaurants...
               </p>
@@ -118,10 +119,14 @@
             :userBusinessLocation="userBusinessLocation"
           />
           <ProfileResults
-            v-if="searchResults && searchResults.length"
-            :searchResults="searchResults"
+            v-if="
+              userProfile || (competitorProfiles && competitorProfiles.length)
+            "
+            :userProfile="userProfile"
+            :competitorProfiles="competitorProfiles"
             :comparison="comparison"
             :suggestions="suggestions"
+            :extraInsights="extraInsights"
             @reset="resetAll"
           />
         </main>
@@ -153,6 +158,9 @@ export default {
       searchResults: [],
       comparison: null,
       suggestions: null,
+      extraInsights: null,
+      userProfile: null,
+      competitorProfiles: [],
       showComparator: false,
       userBusinessName: "Stefan's Steakhouse",
       userBusinessLocation: "Helsinki, Finland",
@@ -198,20 +206,31 @@ export default {
       this.defaultNearby = data.nearby_restaurants || [];
       this.defaultSimilar = data.similar_restaurants || [];
       this.updatingNearby = false;
+      console.log("nearby:", data.nearby_restaurants);
+      console.log("similar:", data.similar_restaurants);
     },
     updateBusiness() {
       this.fetchUserRestaurant();
       this.fetchDefault();
     },
     handleResults(data) {
-      this.searchResults = data.search_results || [];
+      // Set userProfile and competitorProfiles for Results.vue
+      this.userProfile = data.user_profile || null;
+      this.competitorProfiles = Array.isArray(data.competitor_profiles)
+        ? data.competitor_profiles
+        : [];
       this.comparison = data.comparison || null;
       this.suggestions = data.suggestions || null;
+      this.extraInsights = data.extra_insights || null;
     },
+
     resetAll() {
       this.searchResults = null;
       this.comparison = null;
       this.suggestions = null;
+      this.extraInsights = null;
+      this.userProfile = null;
+      this.competitorProfiles = [];
       this.fetchUserRestaurant();
       this.fetchDefault();
     },
@@ -413,6 +432,26 @@ export default {
 .loading {
   text-align: center;
   margin-top: 2rem;
+}
+
+/* Spinner animation */
+.spinner {
+  margin: 0 auto 1rem auto;
+  border: 4px solid #e6eaf0;
+  border-top: 4px solid #2d8cf0;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  display: block;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .slideout-overlay {
   position: fixed;

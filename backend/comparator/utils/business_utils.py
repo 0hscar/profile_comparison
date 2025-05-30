@@ -134,7 +134,7 @@ def combine_all_info_for_place(place, search_data):
         combined["description"] = snippet if snippet else "Description not found"
     return combined
 
-def get_places_cards(query, location, gl="us", num_places=5):
+def get_places_cards(query, location, gl="fi", num_places=5):
     serper_places = fetch_business_profiles_from_serper(query, location, gl)
     places = serper_places.get("places", [])[:num_places]
     serper_search = fetch_business_search_from_serper(query, location, gl)
@@ -143,3 +143,15 @@ def get_places_cards(query, location, gl="us", num_places=5):
         card = combine_all_info_for_place(place, serper_search)
         cards.append(card)
     return cards
+
+def filter_out_user_restaurant(cards, user_business_name, user_business_location):
+    """
+    Remove any card from the list that matches the user's restaurant by title and address.
+    """
+    filtered = [
+        c for c in cards if not (
+            c.get("title", "").lower().strip() == user_business_name.lower().strip() and
+            c.get("address", "").lower().strip() == user_business_location.lower().strip()
+        )
+    ]
+    return filtered

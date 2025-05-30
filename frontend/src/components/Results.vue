@@ -1,69 +1,59 @@
 <template>
-  <div v-if="searchResults && searchResults.length" class="results-container">
-    <!-- Restaurant Cards (Search Results) -->
+  <div
+    v-if="userProfile || (competitorProfiles && competitorProfiles.length)"
+    class="results-container"
+  >
+    <!-- Restaurant Cards (User and Competitors) -->
     <div>
       <h2>Restaurants</h2>
       <div>
+        <RestaurantCard v-if="userProfile" :card="userProfile" :isUser="true" />
         <RestaurantCard
-          v-for="(card, idx) in searchResults"
-          :key="card.place_id || card.title || idx"
+          v-for="(card, idx) in competitorProfiles"
+          :key="card.place_id || card.title || card.name || idx"
           :card="card"
-          :isUser="idx === 0"
+          :isUser="false"
         />
       </div>
     </div>
 
     <h2>Comparison Summary</h2>
     <div class="summary">
-      <p v-if="suggestions && suggestions.ai_summary">{{ suggestions.ai_summary }}</p>
-      <p v-else-if="suggestions && suggestions.summary">{{ suggestions.summary }}</p>
+      <ul>
+        <li v-for="(comparison, idx) in comparison || []" :key="idx">
+          {{ idx }}: {{ comparison }}
+        </li>
+      </ul>
     </div>
 
-    <div v-if="suggestions && (suggestions.ai_provider || suggestions.ai_note)" class="ai-meta">
+    <div
+      v-if="suggestions && (suggestions.ai_provider || suggestions.ai_note)"
+      class="ai-meta"
+    >
       <p>
-        <span v-if="suggestions.ai_provider"><strong>AI Provider:</strong> {{ suggestions.ai_provider }}. </span>
-        <span v-if="suggestions.ai_note"><strong>Note:</strong> {{ suggestions.ai_note }} (applies to both summary and suggestions)</span>
+        <span v-if="suggestions.ai_provider"
+          ><strong>AI Provider:</strong> {{ suggestions.ai_provider }}.
+        </span>
+        <span v-if="suggestions.ai_note"
+          ><strong>Note:</strong> {{ suggestions.ai_note }} (applies to both
+          summary and suggestions)</span
+        >
       </p>
     </div>
 
-    <h3>Suggestions</h3>
+    <h2>Suggestions</h2>
     <ul>
-      <li
-        v-for="(suggestion, idx) in (suggestions && suggestions.suggestions ? suggestions.suggestions : [])"
-        :key="idx"
-      >
-        {{ suggestion }}
+      <li v-for="(suggestion, idx) in suggestions || []" :key="idx">
+        {{ idx }}: {{ suggestion }}
       </li>
     </ul>
 
-    <h3>Details</h3>
-    <div class="details">
-      <h4>Your Business</h4>
-      <div class="your-restaurant-row">
-        <RestaurantCard
-          v-if="comparison && comparison.user"
-          :card="comparison.user"
-          :isUser="true"
-        />
-      </div>
-
-      <h4>Competitors</h4>
-      <div
-        v-for="(comp, idx) in (comparison && comparison.competitors ? comparison.competitors : [])"
-        :key="comp.name || comp.id || idx"
-        class="competitor"
-      >
-        <RestaurantCard :card="comp" :isUser="false" />
-      </div>
-    </div>
-    <AppButton
-      variant="primary"
-      block
-      @click="$emit('reset')"
-      style="margin-top: 2rem;"
-    >
-      Compare Another
-    </AppButton>
+    <h2>Extra Insights</h2>
+    <ul>
+      <li v-for="(extraInsights, idx) in extraInsights || []" :key="idx">
+        {{ idx }}: {{ extraInsights }}
+      </li>
+    </ul>
   </div>
   <div v-else class="loading">
     <p>Loading results...</p>
@@ -72,12 +62,17 @@
 
 <script>
 import RestaurantCard from "./RestaurantCard.vue";
-import AppButton from "./AppButton.vue";
 export default {
   name: "ProfileResults",
-  components: { RestaurantCard, AppButton },
+  components: { RestaurantCard },
   props: {
-    searchResults: {
+    // Instead of searchResults, accept userProfile and competitorProfiles
+    userProfile: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    competitorProfiles: {
       type: Array,
       required: false,
       default: () => [],
@@ -92,56 +87,61 @@ export default {
       required: false,
       default: null,
     },
+    extraInsights: {
+      type: Object,
+      required: false,
+      default: null,
+    },
   },
   methods: {
     formatKey(key) {
       // Convert snake_case or camelCase to Title Case for display
       return key
-        .replace(/_/g, ' ')
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .replace(/\b\w/g, l => l.toUpperCase());
-    }
-  }
+        .replace(/_/g, " ")
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+    },
+  },
 };
 </script>
 
 <style scoped>
 .results-container {
- max-width: 700px;
- margin: 2rem auto;
- padding: 2rem;
- background: #fafbfc;
- border-radius: 8px;
- box-shadow: 0 2px 8px #0001;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fafbfc;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
 }
 .summary {
- background: #e6f7ff;
- padding: 1rem;
- border-radius: 4px;
- margin-bottom: 1rem;
+  background: #e6f7ff;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
 }
 .details {
- margin-top: 1.5rem;
+  margin-top: 1.5rem;
 }
 .competitor {
- margin-bottom: 1rem;
- padding-bottom: 0.5rem;
- border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
 }
 .loading {
- text-align: center;
- margin-top: 3rem;
+  text-align: center;
+  margin-top: 3rem;
 }
 button {
- margin-top: 2rem;
- padding: 0.5rem 1.5rem;
- background: #007bff;
- color: #fff;
- border: none;
- border-radius: 4px;
- cursor: pointer;
+  margin-top: 2rem;
+  padding: 0.5rem 1.5rem;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 button:hover {
- background: #0056b3;
+  background: #0056b3;
 }
 </style>

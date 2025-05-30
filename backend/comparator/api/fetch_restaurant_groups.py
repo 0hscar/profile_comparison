@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from django.core.cache import cache
-from comparator.utils.business_utils import get_places_cards
+from comparator.utils.business_utils import get_places_cards, filter_out_user_restaurant
 from comparator.utils.ai_utils import sendToAI, extract_json_from_response
 
 def get_cached_and_uncached(restaurants):
@@ -25,28 +25,29 @@ def fetch_restaurant_groups(request):
         data = json.loads(request.body)
         user_business_name = data.get("user_business_name")
         user_business_location = data.get("user_business_location")
-        gl = data.get("gl", "us")
+        gl = data.get("gl", "fi")
         num_places = int(data.get("num_places", 5))
         user_category = data.get("user_business_category") or "restaurant"
+
+
+        # Mock cordinates for the user restaurant.
+        # In a real application, you would fetch these from a reliable source or use geocoding.
+        user_latlong = "60.1699,24.9444"
 
         if not user_business_name or not user_business_location:
             return JsonResponse({"error": "user_business_name and user_business_location are required"}, status=400)
 
         # Fetch nearby restaurants (generic "restaurant" query)
-        nearby_cards = get_places_cards("restaurant", user_business_location, gl=gl, num_places=num_places)
+        nearby_cards = get_places_cards("restaurant", user_latlong, gl=gl, num_places=num_places)
         # Remove the user restaurant if present
-        nearby_cards = [c for c in nearby_cards if not (
-            c.get("title", "").lower().strip() == user_business_name.lower().strip() and
-            c.get("address", "").lower().strip() == user_business_location.lower().strip()
-        )]
+
+        nearby_cards = filter_out_user_restaurant(nearby_cards, user_business_name, user_business_location)
+
 
         # Fetch similar restaurants (using the user's category)
         similar_cards = get_places_cards(user_category, user_business_location, gl=gl, num_places=num_places)
-        similar_cards = [c for c in similar_cards if not (
-            c.get("title", "").lower().strip() == user_business_name.lower().strip() and
-            c.get("address", "").lower().strip() == user_business_location.lower().strip()
-        )]
 
+        similar_cards = filter_out_user_restaurant(similar_cards, user_business_name, user_business_location)
         # Caching logic for each restaurant
         cached_nearby, uncached_nearby = get_cached_and_uncached(nearby_cards)
         cached_similar, uncached_similar = get_cached_and_uncached(similar_cards)

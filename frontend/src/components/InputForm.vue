@@ -33,7 +33,6 @@
         />
       </div>
       <div class="button-row">
-
         <div class="button-row">
           <AppButton type="submit" :disabled="loading">
             {{ loading ? "Searching..." : "Compare Profiles" }}
@@ -54,42 +53,40 @@ import "vue3-select/dist/vue3-select.css";
 import AppButton from "./AppButton.vue";
 
 export default {
- name: "InputForm",
- components: { vSelect, AppButton },
- props: {
-   userBusinessName: {
-     type: String,
-     required: true
-   },
-   userBusinessLocation: {
-     type: String,
-     required: true
-   }
- },
- data() {
-   return {
-     query: "",
-     location: null,
-     gl: null,
-     loading: false,
-     error: null,
-     locationOptions: [
-       "Finland",
-       "Sweden",
-       "Norway",
-       "Denmark",
-       "Germany",
-       "United States",
-       "United Kingdom",
-       "France",
-       "Italy",
-       "Spain"
-     ],
-     glOptions: [
-       "fi", "se", "no", "dk", "de", "us", "uk", "fr", "it", "es"
-     ]
-   };
- },
+  name: "InputForm",
+  components: { vSelect, AppButton },
+  props: {
+    userBusinessName: {
+      type: String,
+      required: true,
+    },
+    userBusinessLocation: {
+      type: String,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      query: "",
+      location: null,
+      gl: null,
+      loading: false,
+      error: null,
+      locationOptions: [
+        "Finland",
+        "Sweden",
+        "Norway",
+        "Denmark",
+        "Germany",
+        "United States",
+        "United Kingdom",
+        "France",
+        "Italy",
+        "Spain",
+      ],
+      glOptions: ["fi", "se", "no", "dk", "de", "us", "uk", "fr", "it", "es"],
+    };
+  },
   methods: {
     async submitForm() {
       this.error = null;
@@ -122,6 +119,7 @@ export default {
         }
 
         const data = await response.json();
+        console.log(data);
         this.$emit("comparison-result", data);
       } catch (e) {
         this.error = e.message || "An error occurred.";

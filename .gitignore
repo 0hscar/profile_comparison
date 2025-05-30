@@ -33,3 +33,5 @@ Thumbs.db
 # Environment files
 .env
 .env.*
+# Allow example environment files
+!.env.example
