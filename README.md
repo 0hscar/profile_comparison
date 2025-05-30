@@ -90,12 +90,14 @@ cd profile_comparison
    ```
 
 ---
+### Seperate terminals
+---
 
 ### 3. Frontend Setup (Vue.js)
 
 1. **Install dependencies:**
    ```
-   cd ../frontend
+   cd frontend
    npm install
    ```
 
