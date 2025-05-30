@@ -25,7 +25,6 @@ project-root/
 │   └── ... (config, assets)
 └── README.md        # This file
 ```
-```
 
 ---
 
