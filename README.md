@@ -1,6 +1,6 @@
 # Business Profile Comparator
 
-This project is a business profile comparator web application. It allows users to compare their restaurant or business profile with nearby and similar businesses, leveraging AI-generated insights and data from Google/Serper. The app features a modern Vue.js frontend and a Django backend with AI integration.
+This project is a business profile comparator tool as an extension to an application. It allows users to compare their restaurant or business profile with nearby and similar businesses, leveraging AI-generated insights and data from Google/Serper. The app features a modern Vue.js frontend and a Django backend with AI integration.
 
 ---
 
@@ -112,7 +112,7 @@ cd profile_comparison
 ### 4. Usage
 
 - Open your browser and go to `http://localhost:8080`.
-- Enter your business name and location, then compare profiles.
+- Hardcoded user restaurant: "Stefan's Steakhouse" in "Helsinki".
 - Explore AI-generated summaries, suggestions, and competitor details.
 
 ---
@@ -134,9 +134,7 @@ cd profile_comparison
 
 ## Development Notes
 
-- The backend and frontend run independently; CORS is enabled for local development.
 - You need valid API keys for OpenAI and Serper in your backend `.env` file.
-- For production, configure environment variables and secure API keys appropriately.
 
 ---
 
