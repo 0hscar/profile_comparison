@@ -42,7 +42,11 @@
         <aside class="sidebar">
           <div class="sidebar-content">
             <div v-if="defaultUserBusiness" class="sidebar-sticky-controls">
-              <RestaurantCard :card="defaultUserBusiness" :isUser="true" />
+              <RestaurantCard
+                :card="defaultUserBusiness"
+                :isUser="true"
+                :showDirectCompare="false"
+              />
               <div class="toggle-group" style="margin-top: 1rem">
                 <button
                   :class="['toggle-btn', { active: showNearby }]"
@@ -71,6 +75,10 @@
                 :key="card.place_id || card.title || idx"
                 :card="card"
                 :isUser="false"
+                :showDirectCompare="true"
+                :userBusinessName="userBusinessName"
+                :userBusinessLocation="userBusinessLocation"
+                @comparison-result="handleResults"
               />
             </div>
             <div v-else class="loading">

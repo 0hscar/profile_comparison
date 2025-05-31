@@ -35,6 +35,14 @@
         <span v-if="card.rating !== undefined" class="min-field">
           ⭐ {{ card.rating }}
         </span>
+        <AppButton
+          v-if="showDirectCompare && !isUser"
+          type="button"
+          class="direct-compare-btn"
+          @click.stop="directCompare"
+        >
+           Direct Compare
+        </AppButton>
       </div>
       <span class="expand-indicator">{{ expanded ? "▲" : "▼" }}</span>
     </div>
@@ -84,6 +92,9 @@ export default {
   props: {
     card: { type: Object, required: true },
     isUser: { type: Boolean, default: false },
+    showDirectCompare: { type: Boolean, default: false },
+    userBusinessName: { type: String, required: false, default: "" },
+    userBusinessLocation: { type: String, required: false, default: "" },
   },
   data() {
     return {
@@ -144,10 +155,44 @@ export default {
         .replace(/\b\w/g, (l) => l.toUpperCase());
     },
     toggleExpand(e) {
-      // Only expand/collapse if not clicking a link
-      if (e && e.target && (e.target.tagName === "A" || e.target.closest("a")))
+      // Only expand/collapse if not clicking a link or the direct compare button
+      if (
+        e &&
+        e.target &&
+        (e.target.tagName === "A" ||
+          e.target.closest("a") ||
+          e.target.classList.contains("direct-compare-btn"))
+      )
         return;
       this.expanded = !this.expanded;
+    },
+    async directCompare() {
+      try {
+        const payload = {
+          mode: "search",
+          query: this.card.title || this.card.name,
+          location: this.card.address || this.card.formatted_address || "",
+          gl: this.card.gl || "",
+          user_business_name: this.userBusinessName,
+          user_business_location: this.userBusinessLocation,
+          num_places: 1,
+        };
+        const response = await fetch("/api/compare/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || "Failed to compare profiles.");
+        }
+        const data = await response.json();
+        this.$emit("comparison-result", data);
+      } catch (e) {
+        alert(e.message || "An error occurred during direct compare.");
+      }
     },
   },
 };
@@ -246,4 +291,20 @@ ul {
 .expanded-view {
   margin-top: 1em;
 }
+.direct-compare-btn {
+  margin-left: 1em;
+  font-size: 0.95em;
+  padding: 0.3em 0.8em;
+  border-radius: 4px;
+  background: #f0f6ff;
+  color: #2d8cf0;
+  border: 1px solid #2d8cf0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.direct-compare-btn:hover {
+  background: #2d8cf0;
+  color: #fff;
+}
+
 </style>

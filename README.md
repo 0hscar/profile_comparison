@@ -144,5 +144,5 @@ cd profile_comparison
 
 - **Testing:** Add full unit tests for both backend and frontend components.
 - **bug fixes:** Address any known issues or bugs.
-- **Mandatory Features:** Choose from nearby or similar restaurants for comparison, comparison against muiltiple restaurants or only one. (As of right now, if you are specific enough, it might only give that specific one)
+- **Mandatory Features:** AI response formating.
 - **Possible improvements:** Enhance AI summaries, add more data sources, improve UI/UX.

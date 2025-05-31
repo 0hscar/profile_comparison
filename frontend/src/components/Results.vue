@@ -7,12 +7,13 @@
     <div>
       <h2>Restaurants</h2>
       <div>
-        <RestaurantCard v-if="userProfile" :card="userProfile" :isUser="true" />
+        <RestaurantCard v-if="userProfile" :card="userProfile" :isUser="true" :showDirectCompare="false" />
         <RestaurantCard
           v-for="(card, idx) in competitorProfiles"
           :key="card.place_id || card.title || card.name || idx"
           :card="card"
           :isUser="false"
+          :showDirectCompare="false"
         />
       </div>
     </div>
