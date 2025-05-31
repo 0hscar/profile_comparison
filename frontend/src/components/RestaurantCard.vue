@@ -28,12 +28,12 @@
       <div class="min-fields-row">
         <div class="min-fields">
           <span
-            v-if="card.price_level != null && card.price_level !== ''"
+            v-if="card.price_level !== null && card.price_level !== ''"
             class="min-field"
           >
             💲{{ card.price_level }}
           </span>
-          <span v-if="card.rating !== undefined" class="min-field">
+          <span v-if="card.rating != null" class="min-field">
             ⭐ {{ card.rating }}
           </span>
         </div>

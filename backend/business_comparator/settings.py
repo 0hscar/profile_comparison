@@ -59,6 +59,27 @@ TEMPLATES = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',  # <-- Make sure this is INFO or lower
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',  # <-- Make sure this is INFO or lower
+            'propagate': False,
+        },
+    },
+}
+
 WSGI_APPLICATION = 'business_comparator.wsgi.application'
 
 # Database

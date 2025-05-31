@@ -1,3 +1,4 @@
+from comparator.utils.cache_utils import safe_cache_key
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
@@ -18,7 +19,7 @@ def fetch_user_restaurant(request):
         if not user_business_name or not user_business_location:
             return JsonResponse({"error": "user_business_name and user_business_location are required"}, status=400)
 
-        cache_key = f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}"
+        cache_key = safe_cache_key(f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}")
         cached = cache.get(cache_key)
         if cached:
             print("Returning cached user restaurant AI result (Django cache).")

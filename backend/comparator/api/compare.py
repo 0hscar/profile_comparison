@@ -1,3 +1,4 @@
+from comparator.utils.cache_utils import safe_cache_key
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.cache import cache
@@ -20,7 +21,7 @@ def compare_view(request):
         location = data.get("location")
 
         # Try to use cached user restaurant, if none found, fetch it from Google/Serper
-        cache_key_user = f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}"
+        cache_key_user = safe_cache_key("user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}")
         cached_user = cache.get(cache_key_user)
         if cached_user and "user_restaurant" in cached_user:
             print("Using cached user restaurant profile in compare_view.")
@@ -63,7 +64,7 @@ Respond ONLY with valid JSON.
 """
 
         # Cache key for the AI response (include num_places for uniqueness)
-        cache_key_ai = f"compare:{user_card.get('title','').lower().strip()}|{query.lower().strip() if query else ''}|{num_places}"
+        cache_key_ai = safe_cache_key(f"compare:{user_card.get('title','').lower().strip()}|{query.lower().strip() if query else ''}|{num_places}")
 
         cached_ai = cache.get(cache_key_ai)
         if cached_ai:

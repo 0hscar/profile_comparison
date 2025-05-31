@@ -3,7 +3,7 @@ import os
 import json
 import http.client
 from dotenv import load_dotenv
-print("serper key", os.environ.get('SERPER_API_KEY', ''))
+from comparator.utils.timing_utils import timeit
 
 def fetch_business_profiles_from_serper(query, location, gl="us"):
     conn = http.client.HTTPSConnection("google.serper.dev")
@@ -134,15 +134,19 @@ def combine_all_info_for_place(place, search_data):
         combined["description"] = snippet if snippet else "Description not found"
     return combined
 
-def get_places_cards(query, location, gl="fi", num_places=5):
+@timeit("get_places_cards")
+def get_places_cards(query, location, gl="fi", num_places=5, fullInfo=True):
     serper_places = fetch_business_profiles_from_serper(query, location, gl)
     places = serper_places.get("places", [])[:num_places]
-    serper_search = fetch_business_search_from_serper(query, location, gl)
     cards = []
-    for place in places:
-        card = combine_all_info_for_place(place, serper_search)
-        cards.append(card)
-    return cards
+    # Faster search when less info is needed
+    if fullInfo:
+        serper_search = fetch_business_search_from_serper(query, location, gl)
+        for place in places:
+            card = combine_all_info_for_place(place, serper_search)
+            cards.append(card)
+        return cards
+    return places
 
 def filter_out_user_restaurant(cards, user_business_name, user_business_location):
     """

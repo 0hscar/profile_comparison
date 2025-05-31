@@ -1,6 +1,7 @@
 print("ai_utils.py loaded")
 import os
 from dotenv import load_dotenv
+from comparator.utils.timing_utils import timeit
 from django.http import JsonResponse
 import json
 import openai
@@ -145,7 +146,7 @@ def extract_json_from_response(content):
     # print("Parsing this JSON string:", repr(json_str))
     return json.loads(json_str)
 
-
+@timeit("OpenAI API call")
 def sendToAI(prompt):
     # Universal function to send a prompt to OpenAI and return the response.
     ai_api_key = os.environ.get("OPENAI_API_KEY")
