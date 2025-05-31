@@ -72,7 +72,9 @@
             </div>
             <transition name="slide" mode="out-in">
               <div :key="showNearby ? 'nearby' : 'similar'">
-                <template v-if="(showNearby ? defaultNearby : defaultSimilar).length">
+                <template
+                  v-if="(showNearby ? defaultNearby : defaultSimilar).length"
+                >
                   <RestaurantCard
                     v-for="(card, idx) in showNearby
                       ? defaultNearby
@@ -90,7 +92,8 @@
                   <div class="loading">
                     <div class="spinner"></div>
                     <p>
-                      Loading {{ showNearby ? "nearby" : "similar" }} restaurants...
+                      Loading
+                      {{ showNearby ? "nearby" : "similar" }} restaurants...
                     </p>
                   </div>
                 </template>
@@ -182,7 +185,7 @@ export default {
         user_business_name: this.userBusinessName || "Stefan's Steakhouse",
         user_business_location:
           this.userBusinessLocation || "Helsinki, Finland",
-        user_business_category: "restaurant",
+        user_business_category: "steak",
         num_places: 5,
       };
       const response = await fetch("/api/fetch_restaurant_groups/", {
@@ -478,15 +481,19 @@ export default {
 }
 
 /* Slide transition for nearby/similar list */
-.slide-enter-active, .slide-leave-active {
-  transition: transform 0.4s cubic-bezier(.55,0,.1,1), opacity 0.4s cubic-bezier(.55,0,.1,1);
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.4s cubic-bezier(0.55, 0, 0.1, 1),
+    opacity 0.4s cubic-bezier(0.55, 0, 0.1, 1);
   will-change: transform, opacity;
 }
-.slide-enter-from, .slide-leave-to {
+.slide-enter-from,
+.slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
 }
-.slide-enter-to, .slide-leave-from {
+.slide-enter-to,
+.slide-leave-from {
   transform: translateX(0%);
   opacity: 1;
 }
