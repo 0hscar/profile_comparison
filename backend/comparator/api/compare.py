@@ -21,7 +21,7 @@ def compare_view(request):
         location = data.get("location")
 
         # Try to use cached user restaurant, if none found, fetch it from Google/Serper
-        cache_key_user = safe_cache_key("user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}")
+        cache_key_user = safe_cache_key(f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}")
         cached_user = cache.get(cache_key_user)
         if cached_user and "user_restaurant" in cached_user:
             print("Using cached user restaurant profile in compare_view.")
@@ -33,6 +33,8 @@ def compare_view(request):
             if not user_cards:
                 return JsonResponse({"error": "User restaurant not found with the given name and location."}, status=404)
             user_card = user_cards[0]
+
+
 
         # Get competitors (excluding the user)
         competitor_cards = []
