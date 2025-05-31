@@ -142,7 +142,7 @@ cd profile_comparison
 
 ## Still to do
 
-- **Testing:** Add full unit tests for both backend and frontend components.
+- **Testing:** Add full unit tests for both backend and frontend components, edge cases and error handling. No more 404 errors caused by empty variables.
 - **bug fixes:** Address any known issues or bugs. Known bugs include:
   - Nearby restaurants are at times way off.
   - Some UI elements overlap.
