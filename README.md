@@ -1,6 +1,6 @@
 # Business Profile Comparator
 
-This project is a business profile comparator tool as an extension to an application. It allows users to compare their restaurant or business profile with nearby and similar businesses, leveraging AI-generated insights and data from Google/Serper. The app features a modern Vue.js frontend and a Django backend with AI integration. Note, no database included as this would be a addon to a existing system.
+This project is a business profile comparator tool as an extension to an application. It allows users to compare their restaurant or business profile with nearby and similar businesses, leveraging AI-generated insights and data from Google/Serper. The app features a modern Vue.js frontend and a Django backend with AI integration. Note, no database included as this would be an addon to an existing system.
 
 ---
 
