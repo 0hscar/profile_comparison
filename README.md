@@ -147,4 +147,4 @@ cd profile_comparison
   - Nearby restaurants are at times way off.
   - Some UI elements overlap.
 - **Mandatory Features:** AI response formating.
-- **Possible improvements:** Enhance AI summaries, add more data sources, improve UI/UX, Data-driven / Casual suggestions toggle.
+- **Possible improvements:** Performance, Enhance AI summaries, add more data sources, improve UI/UX, Data-driven / Casual suggestions toggle.
