@@ -19,7 +19,7 @@ def compare_view(request):
         query = data.get("query")
         location = data.get("location")
 
-        # Try to use cached user restaurant
+        # Try to use cached user restaurant, if none found, fetch it from Google/Serper
         cache_key_user = f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}"
         cached_user = cache.get(cache_key_user)
         if cached_user and "user_restaurant" in cached_user:
@@ -53,18 +53,17 @@ Competitors:
 {json.dumps(competitor_cards, indent=2)}
 
 Based on this data and your own knowledge, do the following:
-- Give a comparison summary. Keep it short and not a copy-paste of extra insights.
 - Fill in any missing details for the user restaurant if you can infer them.
 - Create a detailed, structured profile for the user restaurant.
 - Compare the user restaurant to its competitors.
 - Suggest specific improvements for the user restaurant to stand out.
 - If you know more about these businesses, add relevant details.
-Return your answer as a structured JSON object with fields: 'summary', 'user_profile', 'competitor_profiles', 'comparison', 'suggestions', and 'extra_insights'.
+Return your answer as a structured JSON object with fields: 'user_profile', 'competitor_profiles', 'comparison', 'suggestions', and 'extra_insights'.
 Respond ONLY with valid JSON.
 """
 
-        # Cache key for the AI response
-        cache_key_ai = f"compare:{user_card.get('title','').lower().strip()}|{query.lower().strip() if query else ''}"
+        # Cache key for the AI response (include num_places for uniqueness)
+        cache_key_ai = f"compare:{user_card.get('title','').lower().strip()}|{query.lower().strip() if query else ''}|{num_places}"
 
         cached_ai = cache.get(cache_key_ai)
         if cached_ai:

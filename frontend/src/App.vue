@@ -36,36 +36,7 @@
         >
         <h1>Business Profile Comparator</h1>
       </div>
-      <div class="business-fields-row">
-        <div class="form-group">
-          <label for="user_business_name">Your Business Name</label>
-          <input
-            id="user_business_name"
-            v-model="userBusinessName"
-            type="text"
-            placeholder="Stefan's Steakhouse"
-          />
-        </div>
-        <div class="form-group">
-          <label for="user_business_location">Your Business Location</label>
-          <input
-            id="user_business_location"
-            v-model="userBusinessLocation"
-            type="text"
-            placeholder="Helsinki, Finland"
-          />
-        </div>
-        <AppButton
-          class="update-business-btn"
-          variant="primary"
-          :disabled="updatingNearby"
-          @click="updateBusiness"
-        >
-          {{ updatingNearby ? "Updating..." : "Update Business" }}
-        </AppButton>
-        <!-- Fix, currently makes UI goofy -->
-        <p>If you want to change simulated user restaurant</p>
-      </div>
+
       <div class="dashboard-layout">
         <!-- Sidebar: Default/Closest Results -->
         <aside class="sidebar">
