@@ -25,26 +25,29 @@
           >🔎 Google</a
         >
       </h3>
-      <div class="min-fields">
-        <span
-          v-if="card.price_level != null && card.price_level !== ''"
-          class="min-field"
-        >
-          💲{{ card.price_level }}
-        </span>
-        <span v-if="card.rating !== undefined" class="min-field">
-          ⭐ {{ card.rating }}
-        </span>
-        <AppButton
-          v-if="showDirectCompare && !isUser"
-          type="button"
-          class="direct-compare-btn"
-          @click.stop="directCompare"
-        >
-           Direct Compare
-        </AppButton>
+      <div class="min-fields-row">
+        <div class="min-fields">
+          <span
+            v-if="card.price_level != null && card.price_level !== ''"
+            class="min-field"
+          >
+            💲{{ card.price_level }}
+          </span>
+          <span v-if="card.rating !== undefined" class="min-field">
+            ⭐ {{ card.rating }}
+          </span>
+        </div>
+        <div class="compare-btn-wrapper">
+          <AppButton
+            v-if="showDirectCompare && !isUser"
+            type="button"
+            class="direct-compare-btn"
+            @click.stop="directCompare"
+          >
+            Compare
+          </AppButton>
+        </div>
       </div>
-      <span class="expand-indicator">{{ expanded ? "▲" : "▼" }}</span>
     </div>
     <transition name="expand">
       <div v-if="expanded" class="expanded-view">
@@ -205,7 +208,6 @@ export default {
   padding: 1rem;
   margin-bottom: 1.2rem;
   background: #fff;
-  box-shadow: 0 1px 4px #0001;
   position: relative;
   transition: box-shadow 0.2s, background 0.2s;
   word-break: normal;
@@ -213,7 +215,65 @@ export default {
   white-space: normal;
   cursor: pointer;
   outline: none;
+  /* Thick inside bottom shadow when minimized, thin all-edges inside shadow when expanded */
+  box-shadow: none;
 }
+.restaurant-card:not(.expanded)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  height: 0;
+  border-radius: 0 0 8px 8px;
+  pointer-events: none;
+  background: none;
+  box-shadow: none;
+  z-index: 1;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.restaurant-card:not(.expanded):hover,
+.restaurant-card:not(.expanded):focus {
+  z-index: 2;
+}
+
+.restaurant-card:not(.expanded):hover::after,
+.restaurant-card:not(.expanded):focus::after {
+  top: 0;
+  bottom: 0;
+  height: auto;
+  border-radius: 8px;
+  background: none;
+  box-shadow: 0 0 0 4px #2d8cf0 inset, 0 0 16px 4px #2d8cf033 inset;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.restaurant-card.expanded::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 0 8px 2px rgba(44, 62, 80, 0.13) inset;
+  z-index: 1;
+  transition: box-shadow 0.2s;
+}
+.minimized-view {
+  position: relative;
+}
+
 .restaurant-card.user {
   border: 2px solid #2d8cf0;
   background: #e6f7ff;
@@ -256,25 +316,32 @@ ul {
   margin: 0.3em 0 0.3em 1.2em;
   padding: 0;
 }
-.min-fields {
+.min-fields-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 0.5em;
+}
+
+.min-fields {
   font-size: 1.05em;
   color: #444;
   display: flex;
   gap: 1.2em;
   align-items: center;
 }
+
+.compare-btn-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  min-width: 120px;
+}
 .min-field {
   display: inline-block;
 }
-.expand-indicator {
-  float: right;
-  font-size: 1.2em;
-  color: #aaa;
-  margin-top: 0.2em;
-  margin-right: 0.2em;
-  user-select: none;
-}
+
 .restaurant-card:focus {
   box-shadow: 0 0 0 2px #2d8cf0;
 }
@@ -292,7 +359,6 @@ ul {
   margin-top: 1em;
 }
 .direct-compare-btn {
-  margin-left: 1em;
   font-size: 0.95em;
   padding: 0.3em 0.8em;
   border-radius: 4px;
@@ -301,10 +367,11 @@ ul {
   border: 1px solid #2d8cf0;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  margin-left: 0;
+  margin-right: 0;
 }
 .direct-compare-btn:hover {
   background: #2d8cf0;
   color: #fff;
 }
-
 </style>

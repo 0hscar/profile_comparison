@@ -135,7 +135,7 @@ cd profile_comparison
 ## Development Notes
 
 - The backend and frontend run independently; CORS is enabled for local development.
-- You need valid API keys for OpenAI and Serper in your `.env` file.
+- You need valid API keys for OpenAI and Serper in your backend `.env` file.
 - For production, configure environment variables and secure API keys appropriately.
 
 ---
@@ -143,6 +143,8 @@ cd profile_comparison
 ## Still to do
 
 - **Testing:** Add full unit tests for both backend and frontend components.
-- **bug fixes:** Address any known issues or bugs.
+- **bug fixes:** Address any known issues or bugs. Known bugs include:
+  - Nearby restaurants are at times way off.
+  - Some UI elements overlap.
 - **Mandatory Features:** AI response formating.
-- **Possible improvements:** Enhance AI summaries, add more data sources, improve UI/UX.
+- **Possible improvements:** Enhance AI summaries, add more data sources, improve UI/UX, Data-driven / Casual suggestions toggle.

@@ -89,7 +89,7 @@
               v-model="query"
               type="text"
               required
-              placeholder="e.g. thai food"
+              placeholder="e.g. Ravintola Savoy"
             />
           </div>
           <div class="form-group">

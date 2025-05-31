@@ -47,7 +47,13 @@
                 :isUser="true"
                 :showDirectCompare="false"
               />
-              <div class="toggle-group" style="margin-top: 1rem">
+              <h2 style="margin-top: 0.5rem; text-align: center">
+                {{ showNearby ? "Nearby Restaurants" : "Similar Restaurants" }}
+              </h2>
+              <div
+                class="toggle-group"
+                style="margin-top: 1rem; margin-bottom: 1rem"
+              >
                 <button
                   :class="['toggle-btn', { active: showNearby }]"
                   @click="toggleRestaurantGroup('nearby')"
@@ -63,30 +69,33 @@
                   Similar
                 </button>
               </div>
-              <h2 style="margin-top: 0.5rem">
-                {{ showNearby ? "Nearby Restaurants" : "Similar Restaurants" }}
-              </h2>
             </div>
-            <div v-if="(showNearby ? defaultNearby : defaultSimilar).length">
-              <RestaurantCard
-                v-for="(card, idx) in showNearby
-                  ? defaultNearby
-                  : defaultSimilar"
-                :key="card.place_id || card.title || idx"
-                :card="card"
-                :isUser="false"
-                :showDirectCompare="true"
-                :userBusinessName="userBusinessName"
-                :userBusinessLocation="userBusinessLocation"
-                @comparison-result="handleResults"
-              />
-            </div>
-            <div v-else class="loading">
-              <div class="spinner"></div>
-              <p>
-                Loading {{ showNearby ? "nearby" : "similar" }} restaurants...
-              </p>
-            </div>
+            <transition name="slide" mode="out-in">
+              <div :key="showNearby ? 'nearby' : 'similar'">
+                <template v-if="(showNearby ? defaultNearby : defaultSimilar).length">
+                  <RestaurantCard
+                    v-for="(card, idx) in showNearby
+                      ? defaultNearby
+                      : defaultSimilar"
+                    :key="card.place_id || card.title || idx"
+                    :card="card"
+                    :isUser="false"
+                    :showDirectCompare="true"
+                    :userBusinessName="userBusinessName"
+                    :userBusinessLocation="userBusinessLocation"
+                    @comparison-result="handleResults"
+                  />
+                </template>
+                <template v-else>
+                  <div class="loading">
+                    <div class="spinner"></div>
+                    <p>
+                      Loading {{ showNearby ? "nearby" : "similar" }} restaurants...
+                    </p>
+                  </div>
+                </template>
+              </div>
+            </transition>
           </div>
         </aside>
         <!-- Main: Search and Results -->
@@ -302,8 +311,7 @@ export default {
   z-index: 1001;
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.77, 0, 0.18, 1);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   padding: 0 0 0 0;
   display: flex;
   flex-direction: column;
@@ -367,6 +375,9 @@ export default {
   flex-direction: row;
   gap: 2rem;
   padding: 0 2.5rem 2.5rem 2.5rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 .sidebar {
   flex: 0 0 35%;
@@ -375,20 +386,27 @@ export default {
   border-radius: 8px;
   padding: 0;
   box-shadow: 0 1px 4px #0001;
-  min-height: 600px;
-  max-height: 80vh;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
+  overflow-x: hidden;
+  position: relative;
+  align-self: stretch;
   z-index: 2;
+  height: auto;
 }
 .main-content {
-  flex: 0 0 65%;
+  flex: 1 1 65%;
   max-width: 65%;
   min-width: 0;
   word-break: break-word;
   overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 0;
+  height: auto;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
 }
 .sidebar-sticky-header {
   position: sticky;
@@ -457,6 +475,20 @@ export default {
     min-width: 0;
     padding: 0;
   }
+}
+
+/* Slide transition for nearby/similar list */
+.slide-enter-active, .slide-leave-active {
+  transition: transform 0.4s cubic-bezier(.55,0,.1,1), opacity 0.4s cubic-bezier(.55,0,.1,1);
+  will-change: transform, opacity;
+}
+.slide-enter-from, .slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-enter-to, .slide-leave-from {
+  transform: translateX(0%);
+  opacity: 1;
 }
 /* Responsive search box improvements */
 .main-content form,
