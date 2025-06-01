@@ -20,7 +20,7 @@ def fetch_user_restaurant(request):
 
         # Check for cached user restaurant
         cache_key = safe_cache_key(f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}")
-        if (cached_response := check_for_cached_data(cache_key)) is not False: return cached_response
+        if (cached_response := check_for_cached_data(cache_key)) is not False: return JsonResponse(cached_response)
 
         user_cards = get_places_cards(user_business_name, user_business_location, gl=gl, num_places=1)
         if not user_cards:

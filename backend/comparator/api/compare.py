@@ -1,4 +1,4 @@
-from comparator.utils.cache_utils import safe_cache_key
+from comparator.utils.cache_utils import check_for_cached_data, get_or_cache_places_cards, safe_cache_key
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.cache import cache
@@ -23,13 +23,22 @@ def compare_view(request):
         # Try to use cached user restaurant, if none found, fetch it from Google/Serper
         cache_key_user = safe_cache_key(f"user_restaurant:{user_business_name.lower().strip()}|{user_business_location.lower().strip()}")
         cached_user = cache.get(cache_key_user)
-        if cached_user and "user_restaurant" in cached_user:
-            print("Using cached user restaurant profile in compare_view.")
-            user_card = cached_user["user_restaurant"]
+        user_query = ""
+        if (cached_response := check_for_cached_data(cache_key_user)) is not False:
+            user_card = cached_response["user_restaurant"]
+            user_title = user_card.get("title", "Unknown Title")
+            user_address = user_card.get("address", "Unknown Address")
+            user_query = f"User Restaurant:\n  Title: {user_title}\n  Address: {user_address}"
+            print(user_query)
+
+        # if cached_user and "user_restaurant" in cached_user:
+        #     print("Using cached user restaurant profile in compare_view.")
+        #     user_card = cached_user["user_restaurant"]
+        #     print(user_card)
         else:
             user_cards = []
             if user_business_name and user_business_location:
-                user_cards = get_places_cards(user_business_name, user_business_location, gl=gl, num_places=1)
+                user_cards = get_or_cache_places_cards(user_business_name, user_business_location, gl=gl, num_places=1)
             if not user_cards:
                 return JsonResponse({"error": "User restaurant not found with the given name and location."}, status=404)
             user_card = user_cards[0]
@@ -37,28 +46,35 @@ def compare_view(request):
 
 
         # Get competitors (excluding the user)
-        competitor_cards = []
+        competitor_query = ""
+        competitor_cards = [] # Might not be used
         if query and location:
-            competitor_cards = get_places_cards(query=query, location=location, gl=gl, num_places=num_places)
-            competitor_cards = [c for c in competitor_cards if not (
-                user_card.get("title", "").lower() == c.get("title", "").lower() and
-                user_card.get("address", "").lower() == c.get("address", "").lower()
-            )]
+            competitor_cards = get_or_cache_places_cards(query=query, location=location, gl=gl, num_places=num_places, fullInfo=False)
+            # Build competitor_query string
+            competitor_query = "Competitors:\n"
+            for idx, c in enumerate(competitor_cards, 1):
+                c_title = c.get("title", "Unknown Title")
+                c_address = c.get("address", "Unknown Address")
+                competitor_query += f"  {idx}. Title: {c_title}\n     Address: {c_address}\n"
+            print(competitor_query)
 
         # Prepare prompt for OpenAI
         prompt = f"""
 You are an expert business analyst. Here is the data for a user's restaurant and its competitors, as found from Google/Serper:
 
 User Restaurant:
-{json.dumps(user_card, indent=2)}
-
+{user_query}
 Competitors:
-{json.dumps(competitor_cards, indent=2)}
+{competitor_query}
 
-Based on this data and your own knowledge, do the following:
+Based on these names and addresses and your own knowledge, (use the web if you can) do the following:
 - Fill in any missing details for the user restaurant if you can infer them.
-- Create a detailed, structured profile for the user restaurant.
-- Compare the user restaurant to its competitors.
+- Create a detailed, structured profile for the user restaurant, in regards to price, try to keep it as a price range in euros.
+- Compare the user restaurant to its competitors, important fields:
+    1 Point out Review counts and ratings, including averages for the competitors.
+    2 Number of photos, if available.
+    3 Presence of critical fiels like menu, hours, description (If there are menu links, point them out)
+    4 Extra fields you deem important.
 - Suggest specific improvements for the user restaurant to stand out.
 - If you know more about these businesses, add relevant details.
 Return your answer as a structured JSON object with fields: 'user_profile', 'competitor_profiles', 'comparison', 'suggestions', and 'extra_insights'.
