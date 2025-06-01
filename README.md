@@ -147,3 +147,11 @@ cd profile_comparison
 - **Mandatory Features:** AI response formating.
 - **Mandatory Cleanup:** Codebase cleaning
 - **Possible improvements:** Performance, Enhance AI summaries, add more data sources, improve UI/UX, Data-driven / Casual suggestions toggle.
+
+
+## Future features:
+
+- **Streaming AI Response**
+- **Potential REST Framework**
+- **Web Scraping**: Image size checks, Menu and Open hours, Online reservation
+- **Instead of Web Scraping**: browse.ai . Does the scraping for you

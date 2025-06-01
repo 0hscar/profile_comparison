@@ -29,13 +29,6 @@ def set_cached_data(key, data, timeout=60*60):
     cache.set(safe_cache_key(key), data, timeout)
     print(f"Cached data for key: {key} with timeout: {timeout} seconds")
 
-def get_cached_data(key):
-    """
-    Get cached data for the given key. None if not found.
-    """
-    return cache.get(safe_cache_key(key))
-
-
 def get_cached_and_uncached(restaurants, key_func):
     """
     Given a list of restaurant dicts and a function to generate cache keys,
@@ -47,14 +40,14 @@ def get_cached_and_uncached(restaurants, key_func):
     uncached = []
     for r in restaurants:
         cache_key = key_func(r)
-        cached_data = get_cached_data(cache_key)
+        cached_data = cache.get(cache_key)
         if cached_data and 'user_restaurant' in cached_data:
             cached.append(cached_data['user_restaurant'])
         else:
             uncached.append(r)
     return cached, uncached
 
-def cache_given_list(restaurants, key_func, timeout=60*60):
+def cache_given_list(restaurants: list, key_func, timeout=60*60):
     """
     Cache a list of restaurant dicts using a key function to generate cache keys.
     """
@@ -63,7 +56,7 @@ def cache_given_list(restaurants, key_func, timeout=60*60):
         set_cached_data(cache_key, {"user_restaurant": r}, timeout=timeout)
         print(f"Cached restaurant: {cache_key}")
 
-def get_or_cache_places_cards(query, location, gl="us", num_places=5, fullInfo=False):
+def get_or_cache_places_cards(query: str, location: str, num_places: int, gl, fullInfo=False) -> list:
     """
     Fetches places cards for a given query and location, caching the result for 1 hour.
     """

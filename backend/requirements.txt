@@ -4,3 +4,4 @@ requests
 openai
 django-cors-headers
 pytz
+pytest

@@ -6,16 +6,16 @@ from django.core.cache import cache
 from comparator.utils.business_utils import get_places_cards, filter_out_user_restaurant
 
 @csrf_exempt
-def fetch_restaurant_groups(request):
+def fetch_restaurant_groups(request) -> JsonResponse:
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
     try:
         data = json.loads(request.body)
         user_business_name = data.get("user_business_name")
         user_business_location = data.get("user_business_location")
-        gl = data.get("gl", "fi")
-        num_places = int(data.get("num_places", 5))
-        user_category = data.get("user_business_category") or "restaurant"
+        gl = data.get("gl")
+        num_places = int(data.get("num_places"))
+        user_category = data.get("user_business_category")
 
         if not user_business_name or not user_business_location:
             return JsonResponse({"error": "user_business_name and user_business_location are required"}, status=400)
@@ -50,4 +50,4 @@ def fetch_restaurant_groups(request):
         })
 
     except Exception as e:
-        return JsonResponse({"error": f"Unhandled exception: {str(e)}"}, status=500)
+        return JsonResponse({"error": "Unhandled exception"}, status=500)

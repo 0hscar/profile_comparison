@@ -1,45 +1,15 @@
 print("ai_utils.py loaded")
 import os
+from pydantic import BaseModel
 from dotenv import load_dotenv
+from comparator.utils.ai_prompts import restuaruant_compare_prompt_system, restaurant_compare_prompt_user
 from comparator.utils.timing_utils import timeit
 from django.http import JsonResponse
 import json
 import openai
 import re
+from typing import Any
 
-
-# Load .env file from the backend directory
-def compare_profiles(user_profile, competitor_profiles):
-    """
-    Dynamically calculate averages for all numeric fields present in competitor profiles.
-    Returns a comparison dictionary.
-    """
-    if not competitor_profiles:
-        return {}
-
-    # Collect all keys from all competitor profiles
-    all_keys = set()
-    for p in competitor_profiles:
-        all_keys.update(p.keys())
-
-    # Only average numeric fields
-    averages = {}
-    for key in all_keys:
-        values = [p[key] for p in competitor_profiles if key in p and isinstance(p[key], (int, float))]
-        if values:
-            averages[key] = sum(values) / len(values)
-
-    # For boolean fields, show if any competitor has it True
-    bool_fields = [k for k in all_keys if any(isinstance(p.get(k), bool) for p in competitor_profiles)]
-    competitor_field_presence = {field: any(p.get(field, False) for p in competitor_profiles) for field in bool_fields}
-
-    comparison = {
-        "user": user_profile,
-        "competitors": competitor_profiles,
-        "averages": averages,
-        "competitor_field_presence": competitor_field_presence,
-    }
-    return comparison
 
 def mock_suggestion(business_profile, competitors_profiles):
     """
@@ -87,47 +57,16 @@ def mock_suggestion(business_profile, competitors_profiles):
         "suggestions": suggestions
     }
 
-def generate_comparison_suggestions(comparison, competitors_profiles):
+def build_query_for_prompt(query: str, cards: list) -> str:
     """
-    Use OpenAI to generate a summary and concrete suggestions.
-    Returns a dict with the summary/suggestions and a visible note about which AI was used.
-    """
-    openai_api_key = os.environ.get("OPENAI_API_KEY")
-    print("OpenAI API Key:", openai_api_key)
-    if not openai_api_key:
-        # fallback to mock if no key
-        result = mock_suggestion(comparison, competitors_profiles)
-        result["ai_provider"] = "mock"
-        result["ai_note"] = "Using mock AI (not OpenAI)."
-        return result
-    client = openai.OpenAI(api_key=openai_api_key)
-    prompt = (
-        "Given the following business profile comparison, generate a summary and concrete suggestions for improvement. "
-        "Be specific and actionable. Here is the data:\n\n"
-        f"{json.dumps(comparison, indent=2)}"
-    )
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful business profile consultant."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=350,
-            temperature=0.7,
-        )
-        content = response.choices[0].message.content
-        return {
-            "ai_summary": content,
-            "ai_provider": "openai",
-            "ai_note": "Using OpenAI for summary and suggestions."
-        }
-    except Exception as e:
-        return {
-            "ai_summary": f"AI suggestion unavailable: {str(e)}",
-            "ai_provider": "error",
-            "ai_note": "OpenAI call failed, see ai_summary for error."
-        }
+    Build a query string for the prompt based on the provided query and cards.
+    If query is empty, use the first card's title and address."""
+    query += "\n"
+    for idx, c in enumerate(cards, 1):
+        c_title = c.get("title", "Unknown Title")
+        c_address = c.get("address", "Unknown Address")
+        query += f"  {idx}. Title: {c_title}\n     Address: {c_address}\n"
+    return query
 
 
 def extract_json_from_response(content):
@@ -146,42 +85,34 @@ def extract_json_from_response(content):
     # print("Parsing this JSON string:", repr(json_str))
     return json.loads(json_str)
 
+
+class AnalysisOutput(BaseModel):
+    user_profile_cid: str
+    competitor_profiles: list[str]
+    comparison: list[str]
+    suggestions: list[str]
+    extra_insights: list[str]
+
 @timeit("OpenAI API call")
-def sendToAI(prompt):
-    # Universal function to send a prompt to OpenAI and return the response.
+def sendToAI(user_query: str, competitor_query: str) -> AnalysisOutput | None:
     ai_api_key = os.environ.get("OPENAI_API_KEY")
+
     if not ai_api_key:
-        return JsonResponse({
-            "error": "OpenAI API key not configured."
-        }, status=500)
-    try:
-        client = openai.OpenAI(api_key=ai_api_key)
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": "You are a business profile consultant."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=5000,
-            temperature=0.7,
-        )
-        content = response.choices[0].message.content
-        print("Total tokens: ", response.usage.total_tokens)
-        # Check if the response is valid JSON
-        try:
-            result = extract_json_from_response(content)
+        raise Exception("OPENAI_API_KEY environment variable is not set.")
 
-            return JsonResponse(result, status=200)
-        except Exception as e:
-            print("Exception in sendToAI", e)
-            return JsonResponse({
-                "error": "OpenAI did not return valid JSON / TOKEN LIMIT REACHED",
-                "raw_response": content,
-                "exception": str(e)
-            }, status=500)
-        return JsonResponse(result)
+    client = openai.OpenAI(api_key=ai_api_key)
 
-    except Exception as e:
-        return JsonResponse({
-            "error": f"OpenAI API call failed: {str(e)}"
-        }, status=500)
+    response = client.responses.parse(
+        model="gpt-4o-mini",
+        input=[
+            {"role": "system", "content": restuaruant_compare_prompt_system()},
+            {"role": "user", "content": restaurant_compare_prompt_user(user_query, competitor_query)}
+        ],
+        text_format=AnalysisOutput,
+        #max_tokens=5000,
+        temperature=0
+    )
+
+    content = response.output_parsed
+
+    return content
