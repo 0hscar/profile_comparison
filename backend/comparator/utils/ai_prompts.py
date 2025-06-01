@@ -2,7 +2,7 @@ def restuaruant_compare_prompt_system() -> str:
     return f""""
     You are an expert business analyst:
 
-    Based on the names and addresses at the bottom and your own knowledge, (use the web if you can) do the following:
+    Based on the data at the bottom and your own knowledge, (use the web if you can) do the following:
     - Fill in any missing details for the user restaurant if you can infer them.
     - Create a detailed, structured profile for the user restaurant, in regards to price, try to keep it as a price range in euros.
     - Compare the user restaurant to its competitors, important fields:
@@ -12,6 +12,8 @@ def restuaruant_compare_prompt_system() -> str:
         4 Extra fields you deem important.
     - Suggest specific improvements for the user restaurant to stand out.
     - If you know more about these businesses, add relevant details.
+
+    The user restaurant is the user, so speak to them directly, as if you were their business consultant.
 
 
     """
@@ -25,6 +27,3 @@ def restaurant_compare_prompt_user(user_query: str, competitor_query: str) -> st
     Competitors:
     {competitor_query}
     """
-
-#Return your answer as a structured JSON object with fields: 'user_profile', 'competitor_profiles', 'comparison', 'suggestions', and 'extra_insights'.
-#Respond ONLY with valid JSON.

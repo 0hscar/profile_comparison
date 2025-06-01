@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.core.cache import cache
 import json
 from comparator.utils.business_utils import filter_out_user_restaurant, get_places_cards
-from comparator.utils.ai_utils import build_query_for_prompt, sendToAI, extract_json_from_response
+from comparator.utils.ai_utils import build_query_for_prompt, sendToAI
 
 @csrf_exempt
 def compare_view(request: Json) -> JsonResponse:
@@ -30,10 +30,7 @@ def compare_view(request: Json) -> JsonResponse:
         user_query = ""
         if (cached_response := check_for_cached_data(cache_key_user)) is not False:
             user_card = cached_response["user_restaurant"]
-            user_title = user_card.get("title", "Unknown Title")
-            user_address = user_card.get("address", "Unknown Address")
-            user_query = f"User Restaurant:\n  Title: {user_title}\n  Address: {user_address}"
-            print(user_query)
+            user_query = build_query_for_prompt("User Restaurant", [user_card])
 
         else:
             user_cards = []
@@ -46,8 +43,7 @@ def compare_view(request: Json) -> JsonResponse:
         # Get competitors (excluding the user)
         competitor_cards = get_or_cache_places_cards(query=query, location=location, gl=gl, num_places=num_places, fullInfo=False)
         # Build competitor_query string
-        competitor_query = build_query_for_prompt("Competitor", competitor_cards)
-
+        competitor_query = build_query_for_prompt("Competitor Restaurants", competitor_cards)
         # Cache key for the AI response (include num_places for uniqueness)
         cache_key_ai = safe_cache_key(f"compare:{user_card.get('title','').lower().strip()}|{query.lower().strip() if query else ''}|{num_places}")
 

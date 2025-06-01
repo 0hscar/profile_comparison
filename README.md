@@ -146,12 +146,14 @@ cd profile_comparison
   - Some UI elements overlap.
 - **Mandatory Features:** AI response formating.
 - **Mandatory Cleanup:** Codebase cleaning
-- **Possible improvements:** Performance, Enhance AI summaries, add more data sources, improve UI/UX, Data-driven / Casual suggestions toggle.
+- **Changed to response.parse:** Faster OpenAI responses 
 
 
 ## Future features:
 
+- **Improvements:** More data soures, Improved UI/UX based on customers requests / self noticed possibilities, Focused data driven / Casual data driven suggestions.  
 - **Streaming AI Response**
 - **Potential REST Framework**
 - **Web Scraping**: Image size checks, Menu and Open hours, Online reservation
 - **Instead of Web Scraping**: browse.ai . Does the scraping for you
+- **Charts:** Either AI generated or coded.
