@@ -1,6 +1,5 @@
 <template>
   <div class="input-form responsive-search-form">
-    <h2>Business Profile Comparator</h2>
     <div class="form-slide-wrapper">
       <transition name="slide" mode="out-in">
         <form
@@ -119,6 +118,7 @@
 import vSelect from "vue3-select";
 import "vue3-select/dist/vue3-select.css";
 import AppButton from "./AppButton.vue";
+import compareResponseHandler from "../utils/compareResponseHandler";
 
 export default {
   name: "InputForm",
@@ -192,20 +192,8 @@ export default {
         console.log("Searching for places: ", numPlaces);
         // Remove undefined gl if not needed
         if (payload.gl === undefined) delete payload.gl;
-        const response = await fetch("/api/compare/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
 
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || "Failed to compare profiles.");
-        }
-
-        const data = await response.json();
+        const data = await compareResponseHandler(payload);
         this.$emit("comparison-result", data);
       } catch (e) {
         this.error = e.message || "An error occurred.";

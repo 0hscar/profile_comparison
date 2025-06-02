@@ -85,6 +85,7 @@
 
 <script>
 import AppButton from "./AppButton.vue";
+import compareResponseHandler from "../utils/compareResponseHandler.js";
 export default {
   name: "RestaurantCard",
   components: {
@@ -184,18 +185,8 @@ export default {
           user_business_location: this.userBusinessLocation,
           num_places: 1,
         };
-        const response = await fetch("/api/compare/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || "Failed to compare profiles.");
-        }
-        const data = await response.json();
+
+        const data = await compareResponseHandler(payload);
         this.$emit("comparison-result", data);
       } catch (e) {
         alert(e.message || "An error occurred during direct compare.");
