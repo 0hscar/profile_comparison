@@ -18,129 +18,34 @@
       </AppButton>
     </div>
     <!-- Slide-out Comparator Panel -->
-    <div
-      class="comparator-slideout"
-      :class="{ open: showComparator }"
-      tabindex="-1"
-      aria-modal="true"
-      role="dialog"
-    >
-      <div class="comparator-sticky-header">
-        <AppButton
-          class="close-btn"
-          variant="secondary"
-          round
-          aria-label="Close"
-          @click="showComparator = false"
-          >&times;</AppButton
-        >
-        <h1>Business Profile Comparator</h1>
-      </div>
-
-      <div class="dashboard-layout">
-        <!-- Sidebar: Default/Closest Results -->
-        <aside class="sidebar">
-          <div class="sidebar-content">
-            <div v-if="defaultUserBusiness" class="sidebar-sticky-controls">
-              <RestaurantCard
-                :card="defaultUserBusiness"
-                :isUser="true"
-                :showDirectCompare="false"
-              />
-              <h2 style="margin-top: 0.5rem; text-align: center">
-                {{ showNearby ? "Nearby Restaurants" : "Similar Restaurants" }}
-              </h2>
-              <div
-                class="toggle-group"
-                style="margin-top: 1rem; margin-bottom: 1rem"
-              >
-                <button
-                  :class="['toggle-btn', { active: showNearby }]"
-                  @click="toggleRestaurantGroup('nearby')"
-                  type="button"
-                >
-                  Nearby
-                </button>
-                <button
-                  :class="['toggle-btn', { active: !showNearby }]"
-                  @click="toggleRestaurantGroup('similar')"
-                  type="button"
-                >
-                  Similar
-                </button>
-              </div>
-            </div>
-            <transition name="slide" mode="out-in">
-              <div :key="showNearby ? 'nearby' : 'similar'">
-                <template
-                  v-if="(showNearby ? defaultNearby : defaultSimilar).length"
-                >
-                  <RestaurantCard
-                    v-for="(card, idx) in showNearby
-                      ? defaultNearby
-                      : defaultSimilar"
-                    :key="card.place_id || card.title || idx"
-                    :card="card"
-                    :isUser="false"
-                    :showDirectCompare="true"
-                    :userBusinessName="userBusinessName"
-                    :userBusinessLocation="userBusinessLocation"
-                    @comparison-result="handleResults"
-                  />
-                </template>
-                <template v-else>
-                  <div class="loading">
-                    <div class="spinner"></div>
-                    <p>
-                      Loading
-                      {{ showNearby ? "nearby" : "similar" }} restaurants...
-                    </p>
-                  </div>
-                </template>
-              </div>
-            </transition>
-          </div>
-        </aside>
-        <!-- Main: Search and Results -->
-        <main class="main-content">
-          <InputForm
-            @comparison-result="handleResults"
-            @reset="resetAll"
-            :userBusinessName="userBusinessName"
-            :userBusinessLocation="userBusinessLocation"
-          />
-          <ProfileResults
-            v-if="
-              userProfile || (competitorProfiles && competitorProfiles.length)
-            "
-            :userProfile="userProfile"
-            :competitorProfiles="competitorProfiles"
-            :comparison="comparison"
-            :suggestions="suggestions"
-            :extraInsights="extraInsights"
-            @reset="resetAll"
-          />
-        </main>
-      </div>
-    </div>
-    <!-- Overlay when open -->
-    <div
-      v-if="showComparator"
-      class="slideout-overlay"
-      @click="showComparator = false"
-    ></div>
+    <ComparatorSlideout
+      :open="showComparator"
+      :defaultUserBusiness="defaultUserBusiness"
+      :defaultNearby="defaultNearby"
+      :defaultSimilar="defaultSimilar"
+      :showNearby="showNearby"
+      :userBusinessName="userBusinessName"
+      :userBusinessLocation="userBusinessLocation"
+      :userProfile="userProfile"
+      :competitorProfiles="competitorProfiles"
+      :comparison="comparison"
+      :suggestions="suggestions"
+      :extraInsights="extraInsights"
+      @close="showComparator = false"
+      @toggle-restaurant-group="toggleRestaurantGroup"
+      @comparison-result="handleResults"
+      @reset="resetAll"
+    />
   </div>
 </template>
 
 <script>
-import InputForm from "./components/InputForm.vue";
-import ProfileResults from "./components/Results.vue";
-import RestaurantCard from "./components/RestaurantCard.vue";
 import AppButton from "./components/AppButton.vue";
+import ComparatorSlideout from "./components/ComparatorSlideout.vue";
 
 export default {
   name: "App",
-  components: { InputForm, ProfileResults, RestaurantCard, AppButton },
+  components: { AppButton, ComparatorSlideout },
   data() {
     return {
       defaultNearby: [],
