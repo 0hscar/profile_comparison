@@ -31,10 +31,12 @@
       :comparison="comparison"
       :suggestions="suggestions"
       :extraInsights="extraInsights"
+      :loading="loadingResults"
       @close="showComparator = false"
       @toggle-restaurant-group="toggleRestaurantGroup"
       @comparison-result="handleResults"
       @reset="resetAll"
+      @set-loading="setResultsLoading"
     />
   </div>
 </template>
@@ -62,6 +64,7 @@ export default {
       userBusinessLocation: "Helsinki, Finland",
       updatingNearby: false,
       showNearby: true, // true = show nearby, false = show similar
+      loadingResults: false,
     };
   },
 
@@ -118,6 +121,7 @@ export default {
       this.comparison = data.comparison || null;
       this.suggestions = data.suggestions || null;
       this.extraInsights = data.extra_insights || null;
+      this.loadingResults = false;
     },
 
     resetAll() {
@@ -127,12 +131,16 @@ export default {
       this.extraInsights = null;
       this.userProfile = null;
       this.competitorProfiles = [];
+      this.loadingResults = false;
       this.fetchUserRestaurant();
       this.fetchDefault();
     },
     toggleRestaurantGroup(group) {
       this.showNearby = group === "nearby";
     },
+    setResultsLoading(loading) {
+      this.loadingResults = loading;
+    }
   },
   mounted() {
     this.fetchUserRestaurant();

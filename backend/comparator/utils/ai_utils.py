@@ -73,6 +73,10 @@ def sendToAI(user_query: str, competitor_query: str) -> AnalysisOutput | None:
         temperature=0
     )
 
+    # Debug output, known bug where competitor query gets wild on second search without reload
+    print("System prompt: ", restuaruant_compare_prompt_system())
+    print("User prompt: ", restaurant_compare_prompt_user(user_query, competitor_query))
+
     content = response.output_parsed
 
     return content

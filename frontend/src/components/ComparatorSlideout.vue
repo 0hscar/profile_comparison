@@ -36,14 +36,16 @@
           @reset="$emit('reset')"
           :userBusinessName="userBusinessName"
           :userBusinessLocation="userBusinessLocation"
+          @set-loading="$emit('set-loading', $event)"
         />
         <ProfileResults
-          v-if="userProfile || (competitorProfiles && competitorProfiles.length)"
+          v-if="userProfile || (competitorProfiles && competitorProfiles.length) || loading"
           :userProfile="userProfile"
           :competitorProfiles="competitorProfiles"
           :comparison="comparison"
           :suggestions="suggestions"
           :extraInsights="extraInsights"
+          :loading="loading"
           @reset="$emit('reset')"
         />
       </main>
@@ -83,6 +85,7 @@ export default {
     comparison: { type: [Object, Array], default: null },
     suggestions: { type: Object, default: null },
     extraInsights: { type: Object, default: null },
+    loading: { type: Boolean, default: false },
   },
 };
 </script>

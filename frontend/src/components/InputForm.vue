@@ -61,7 +61,7 @@
               :disabled="loading"
               @click="showCompareOneForm = true"
             >
-              Search Specific Profile
+              Direct Compare
             </AppButton>
           </div>
         </form>
@@ -158,9 +158,11 @@ export default {
     };
   },
   methods: {
+    // Locally used, change to util funciton if needed elsewhere
     async submitForm(numPlacesOrEvent) {
       this.error = null;
       this.loading = true;
+      this.$emit("set-loading", true);
       try {
         let numPlaces = this.numPlaces;
         // Handle both main and compare-one form
@@ -199,6 +201,7 @@ export default {
         this.error = e.message || "An error occurred.";
       } finally {
         this.loading = false;
+        this.$emit("set-loading", false);
       }
     },
   },

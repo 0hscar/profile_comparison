@@ -32,14 +32,17 @@
           </span>
         </div>
         <div class="compare-btn-wrapper">
-          <AppButton
-            v-if="showDirectCompare && !isUser"
-            type="button"
-            class="direct-compare-btn"
-            @click="handleDirectCompare"
-          >
-            Compare
-          </AppButton>
+          <div style="position: relative;">
+            <AppButton
+              v-if="showDirectCompare && !isUser && !loadingCompare"
+              type="button"
+              class="direct-compare-btn"
+              @click="handleDirectCompare"
+            >
+              Compare
+            </AppButton>
+            <span v-if="loadingCompare" class="compare-spinner"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -50,7 +53,7 @@
         </div>
         <ul class="fields-list">
           <li v-for="(value, key) in displayFields" :key="key">
-            <strong>{{ formatKey(key) }}:</strong>
+            <strong>{{ key }}:</strong>
             <template v-if="key === 'website' && value">
               <a :href="value" target="_blank">{{ value }}</a>
             </template>
@@ -101,6 +104,7 @@ export default {
   data() {
     return {
       expanded: false,
+      loadingCompare: false,
     };
   },
   computed: {
@@ -150,6 +154,7 @@ export default {
   },
   // Basically functions
   methods: {
+    // All locally used methods
     formatKey(key) {
       // Convert snake_case or camelCase to Title Case for display
       return key
@@ -172,9 +177,13 @@ export default {
     handleDirectCompare(e) {
       e.stopPropagation();
       e.preventDefault();
+      this.$emit("set-loading", true);
       this.directCompare();
     },
+
+    // Locally used method to handle direct comparison, change to util function if used elsewhere
     async directCompare() {
+      this.loadingCompare = true;
       try {
         const payload = {
           mode: "search",
@@ -190,6 +199,9 @@ export default {
         this.$emit("comparison-result", data);
       } catch (e) {
         alert(e.message || "An error occurred during direct compare.");
+      } finally {
+        this.loadingCompare = false;
+        this.$emit("set-loading", false);
       }
     },
   },
@@ -368,5 +380,24 @@ ul {
 .direct-compare-btn:hover {
   background: #2d8cf0;
   color: #fff;
+}
+.compare-spinner {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #e6eaf0;
+  border-top: 3px solid #2d8cf0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

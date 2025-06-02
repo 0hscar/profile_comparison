@@ -1,6 +1,10 @@
 <template>
+  <div v-if="loading" class="results-loading">
+    <span class="results-spinner"></span>
+    <p>Loading results...</p>
+  </div>
   <div
-    v-if="userProfile || (competitorProfiles && competitorProfiles.length)"
+    v-else-if="userProfile || (competitorProfiles && competitorProfiles.length)"
     class="results-container"
   >
     <!-- Restaurant Cards (User and Competitors) -->
@@ -148,6 +152,11 @@ export default {
       required: false,
       default: null,
     },
+    loading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   methods: {
     formatKey(key) {
@@ -216,5 +225,30 @@ button:hover {
   margin-right: 0.5em;
   font-size: 1rem;
   letter-spacing: 0.05em;
+}
+.results-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.results-spinner {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e6eaf0;
+  border-top: 4px solid #2d8cf0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

@@ -27,7 +27,6 @@ def set_cached_data(key, data, timeout=60*60):
     Set cached data for the given key with an optional timeout (default 1 hour).
     """
     cache.set(safe_cache_key(key), data, timeout)
-    print(f"Cached data for key: {key} with timeout: {timeout} seconds")
 
 def get_cached_and_uncached(restaurants, key_func):
     """
@@ -54,7 +53,6 @@ def cache_given_list(restaurants: list, key_func, timeout=60*60):
     for r in restaurants:
         cache_key = key_func(r)
         set_cached_data(cache_key, {"user_restaurant": r}, timeout=timeout)
-        print(f"Cached restaurant: {cache_key}")
 
 def get_or_cache_places_cards(query: str, location: str, num_places: int, gl: str, fullInfo=False) -> list:
     """

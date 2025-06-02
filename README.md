@@ -112,7 +112,7 @@ cd profile_comparison
 ### 4. Usage
 
 - Open your browser and go to `http://localhost:8080`.
-- Hardcoded user restaurant: "Stefan's Steakhouse" in "Helsinki".
+- "Hardcoded" user restaurant: "Stefan's Steakhouse" in "Helsinki".
 - Explore AI-generated summaries, suggestions, and competitor details.
 
 ---
@@ -143,15 +143,18 @@ cd profile_comparison
 - **Testing:** Add full unit tests for both backend and frontend components, edge cases and error handling. No more 404 errors caused by empty variables.
 - **bug fixes:** Address any known issues or bugs. Known bugs include:
   - Double API call on direct compare from nearby/similar list.
+  - If input searched a second time, competitor query get's wild and ignores location/address
   - Some UI elements overlap.
 - **Mandatory Features:** AI response formating.
-- **Mandatory Cleanup:** Codebase cleaning
-- **Changed to response.parse:** Faster OpenAI responses 
+- **Mandatory Cleanup:** Codebase cleaning 
 
 ## Fixed bugs
 
 - **Nearby restaurants bug**
 
+## Performance fixes
+
+- **Changed to response.parse:** Faster OpenAI responses
 
 ## Future features:
 
