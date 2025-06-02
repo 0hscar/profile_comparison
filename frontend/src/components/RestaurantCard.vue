@@ -53,7 +53,7 @@
         </div>
         <ul class="fields-list">
           <li v-for="(value, key) in displayFields" :key="key">
-            <strong>{{ key }}:</strong>
+            <strong>{{ formatKey(key) }}:</strong>
             <template v-if="key === 'website' && value">
               <a :href="value" target="_blank">{{ value }}</a>
             </template>
