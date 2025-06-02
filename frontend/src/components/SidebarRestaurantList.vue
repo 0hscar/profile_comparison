@@ -69,3 +69,16 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.sidebar-sticky-controls {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  margin: 0 0 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+</style>

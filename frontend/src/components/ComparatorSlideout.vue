@@ -39,7 +39,11 @@
           @set-loading="$emit('set-loading', $event)"
         />
         <ProfileResults
-          v-if="userProfile || (competitorProfiles && competitorProfiles.length) || loading"
+          v-if="
+            userProfile ||
+            (competitorProfiles && competitorProfiles.length) ||
+            loading
+          "
           :userProfile="userProfile"
           :competitorProfiles="competitorProfiles"
           :comparison="comparison"
@@ -51,11 +55,7 @@
       </main>
     </div>
   </div>
-  <div
-    v-if="open"
-    class="slideout-overlay"
-    @click="$emit('close')"
-  ></div>
+  <div v-if="open" class="slideout-overlay" @click="$emit('close')"></div>
 </template>
 
 <script>
@@ -95,8 +95,8 @@ export default {
   position: fixed;
   top: 0;
   right: 0;
-  width: 50vw;
-  min-width: 340px;
+  width: clamp(960px, 50vw, 100vw);
+  min-width: 0;
   max-width: 100vw;
   height: 100vh;
   background: #fafbfc;
@@ -208,6 +208,7 @@ export default {
   .comparator-slideout {
     width: 100vw;
     min-width: 0;
+    max-width: 100vw;
     padding: 0;
   }
 }
