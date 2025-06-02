@@ -140,7 +140,7 @@ export default {
     },
     setResultsLoading(loading) {
       this.loadingResults = loading;
-    }
+    },
   },
   mounted() {
     this.fetchUserRestaurant();
@@ -332,6 +332,7 @@ export default {
   padding: 1.5rem 1rem 1rem 1rem;
   border-radius: 8px 8px 0 0;
   box-shadow: 0 1px 4px #0001;
+  width: 100%;
 }
 .sidebar-sticky-header h2 {
   margin: 0;
@@ -339,6 +340,7 @@ export default {
   color: #2d8cf0;
   text-align: center;
 }
+
 .sidebar-content {
   padding: 0 1rem 1.5rem 1rem;
 }

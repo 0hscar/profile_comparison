@@ -46,7 +46,7 @@
         </div>
       </div>
     </div>
-    <transition name="expand">
+    <transition name="expand-card">
       <div v-if="expanded" class="expanded-view">
         <div v-if="card.photos && card.photos.length">
           <img :src="card.photos[0]" alt="Photo" class="photo" />
@@ -248,6 +248,8 @@ export default {
 .restaurant-card:not(.expanded):hover,
 .restaurant-card:not(.expanded):focus {
   z-index: 2;
+  outline: none;
+  box-shadow: none;
 }
 
 .restaurant-card:not(.expanded):hover::after,
@@ -350,17 +352,27 @@ ul {
 }
 
 .restaurant-card:focus {
-  box-shadow: 0 0 0 2px #2d8cf0;
+  outline: none;
+  box-shadow: none;
 }
-.expand-enter-active,
-.expand-leave-active {
-  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s;
+.expand-card-enter-active,
+.expand-card-leave-active {
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s, padding 0.35s;
+  overflow: hidden;
 }
-.expand-enter,
-.expand-leave-to {
+.expand-card-enter-from,
+.expand-card-leave-to {
   max-height: 0;
   opacity: 0;
-  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.expand-card-enter-to,
+.expand-card-leave-from {
+  max-height: 600px;
+  opacity: 1;
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
 .expanded-view {
   margin-top: 1em;
