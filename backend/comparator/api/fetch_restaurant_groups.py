@@ -14,7 +14,7 @@ def fetch_restaurant_groups(request) -> JsonResponse:
         user_business_name = data.get("user_business_name")
         user_business_location = data.get("user_business_location")
         gl = data.get("gl")
-        num_places = int(data.get("num_places"))
+        num_places = data.get("num_places")
         user_category = data.get("user_business_category")
 
         if not user_business_name or not user_business_location:
