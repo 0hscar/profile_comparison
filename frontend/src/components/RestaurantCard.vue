@@ -11,8 +11,8 @@
     <div class="minimized-view">
       <h3>
         {{ card.title || card.name || "Not found" }}
-        <span v-if="isUser" class="badge">Your Restaurant</span
-        ><br v-if="isUser" />
+        <!-- <span v-if="isUser" class="badge">Your Restaurant</span> -->
+        <br v-if="isUser" />
         <a
           v-if="card.title || card.name"
           class="google-link"
@@ -27,12 +27,6 @@
       </h3>
       <div class="min-fields-row">
         <div class="min-fields">
-          <span
-            v-if="card.price_level !== null && card.price_level !== ''"
-            class="min-field"
-          >
-            💲{{ card.price_level }}
-          </span>
           <span v-if="card.rating != null" class="min-field">
             ⭐ {{ card.rating }}
           </span>
@@ -90,8 +84,12 @@
 </template>
 
 <script>
+import AppButton from "./AppButton.vue";
 export default {
   name: "RestaurantCard",
+  components: {
+    AppButton,
+  },
   props: {
     card: { type: Object, required: true },
     isUser: { type: Boolean, default: false },

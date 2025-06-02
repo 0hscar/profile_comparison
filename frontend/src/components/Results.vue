@@ -5,16 +5,73 @@
   >
     <!-- Restaurant Cards (User and Competitors) -->
     <div>
-      <h2>Restaurants</h2>
+      <h2><div class="user-banner">You</div></h2>
       <div>
-        <RestaurantCard v-if="userProfile" :card="userProfile" :isUser="true" :showDirectCompare="false" />
-        <RestaurantCard
-          v-for="(card, idx) in competitorProfiles"
-          :key="card.place_id || card.title || card.name || idx"
-          :card="card"
-          :isUser="false"
-          :showDirectCompare="false"
-        />
+        <div
+          v-if="
+            userProfile &&
+            Array.isArray(userProfile) &&
+            userProfile.length &&
+            typeof userProfile[0] === 'object'
+          "
+          class="user"
+        >
+          <h3>
+            {{ userProfile[0].Name }}
+          </h3>
+
+          <p>
+            <strong>Address:</strong>
+            {{ userProfile[0].Address }}
+          </p>
+          <p>
+            <strong>Rating:</strong>
+            {{ userProfile[0].Rating }}
+          </p>
+        </div>
+        <template
+          v-if="
+            competitorProfiles &&
+            competitorProfiles.length &&
+            Array.isArray(competitorProfiles[0])
+          "
+        >
+          <h2>Competitors</h2>
+          <div
+            v-for="(competitor, idx) in competitorProfiles[0]"
+            :key="idx"
+            class="competitor"
+          >
+            <h3>{{ competitor.Name }}</h3>
+            <p>
+              <strong>Address:</strong>
+              {{ competitor.Address }}
+            </p>
+            <p>
+              <strong>Rating:</strong>
+              {{ competitor.Rating }}
+            </p>
+          </div>
+        </template>
+
+        <!-- If flat array of objects -->
+        <template v-else>
+          <div
+            v-for="(competitor, idx) in competitorProfiles"
+            :key="idx"
+            class="competitor"
+          >
+            <h3>{{ competitor.Name }}</h3>
+            <p>
+              <strong>Address:</strong>
+              {{ competitor.Address }}
+            </p>
+            <p>
+              <strong>Rating:</strong>
+              {{ competitor.Rating }}
+            </p>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -22,7 +79,7 @@
     <div class="summary">
       <ul>
         <li v-for="(comparison, idx) in comparison || []" :key="idx">
-          {{ idx }}: {{ comparison }}
+          {{ comparison }}
         </li>
       </ul>
     </div>
@@ -45,14 +102,14 @@
     <h2>Suggestions</h2>
     <ul>
       <li v-for="(suggestion, idx) in suggestions || []" :key="idx">
-        {{ idx }}: {{ suggestion }}
+        {{ suggestion }}
       </li>
     </ul>
 
     <h2>Extra Insights</h2>
     <ul>
       <li v-for="(extraInsights, idx) in extraInsights || []" :key="idx">
-        {{ idx }}: {{ extraInsights }}
+        {{ extraInsights }}
       </li>
     </ul>
   </div>
@@ -62,10 +119,8 @@
 </template>
 
 <script>
-import RestaurantCard from "./RestaurantCard.vue";
 export default {
   name: "ProfileResults",
-  components: { RestaurantCard },
   props: {
     // Instead of searchResults, accept userProfile and competitorProfiles
     userProfile: {
@@ -124,6 +179,11 @@ export default {
 .details {
   margin-top: 1.5rem;
 }
+.user {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #007bff;
+}
 .competitor {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
@@ -144,5 +204,17 @@ button {
 }
 button:hover {
   background: #0056b3;
+}
+.user-banner {
+  display: inline-block;
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.25em 1em;
+  border-radius: 999px;
+  margin-bottom: 0.5em;
+  margin-right: 0.5em;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
 }
 </style>

@@ -31,11 +31,15 @@ def compare_view(request: Json) -> JsonResponse:
         if (cached_response := check_for_cached_data(cache_key_user)) is not False:
             user_card = cached_response["user_restaurant"]
             user_query = build_query_for_prompt("User Restaurant", [user_card])
+            print("Cached response query", user_query)
 
         else:
             user_cards = []
             if user_business_name and user_business_location:
                 user_cards = get_or_cache_places_cards(user_business_name, user_business_location, num_places ,gl=gl )
+                user_query = build_query_for_prompt("User Restaurant", user_cards)
+                print("non cached response qeuery", user_query)
+
             if not user_cards:
                 return JsonResponse({"error": "User restaurant not found with the given name and location."}, status=404)
             user_card = user_cards[0]

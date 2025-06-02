@@ -18,7 +18,7 @@ def build_query_for_prompt(query: str, cards: list) -> str:
     for idx, c in enumerate(cards, 1):
         query += f"""
         {idx}.
-        Competitor Restaurant: {c.get("title", "Unknown Title")}
+        Restaurant: {c.get("title", "Unknown Title")}
         Address: {c.get("address", "Unknown Address")}
         Rating: {c.get("rating", "No Rating")}
         Price Level: {c.get("priceLevel", "No Price")}
@@ -26,9 +26,20 @@ def build_query_for_prompt(query: str, cards: list) -> str:
         """
     return query
 
+class Profile(BaseModel):
+    Name: str
+    Address: str
+    Rating: str
+    NumberOfReviews: str
+    PriceLevel: str
+    Cuisine: str
+    Description: str
+    AdditionalDetails: str
+
+
 class AnalysisOutput(BaseModel):
-    user_profile_cid: str
-    competitor_profiles: list[str]
+    user_profile: list[Profile]
+    competitor_profiles: list[list[Profile]]
     comparison: list[str]
     suggestions: list[str]
     extra_insights: list[str]
