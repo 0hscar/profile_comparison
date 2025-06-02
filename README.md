@@ -164,3 +164,9 @@ cd profile_comparison
 - **Web Scraping**: Image size checks, Menu and Open hours, Online reservation
 - **Instead of Web Scraping**: browse.ai . Does the scraping for you
 - **Charts:** Either AI generated or coded.
+- **Country Codes:** Mapping country codes "fi": "Finland",
+
+### Not visible for user
+
+- **Double API call on direct compare via nearby / similar list**
+- **After change to response.parse -> location / address gets ignored on OpenAI call. CRUCIAL FIX BEFORE LAUNCH**
