@@ -36,7 +36,7 @@
             v-if="showDirectCompare && !isUser"
             type="button"
             class="direct-compare-btn"
-            @click.stop="directCompare"
+            @click="handleDirectCompare"
           >
             Compare
           </AppButton>
@@ -147,6 +147,7 @@ export default {
       return fields;
     },
   },
+  // Basically functions
   methods: {
     formatKey(key) {
       // Convert snake_case or camelCase to Title Case for display
@@ -166,6 +167,11 @@ export default {
       )
         return;
       this.expanded = !this.expanded;
+    },
+    handleDirectCompare(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      this.directCompare();
     },
     async directCompare() {
       try {

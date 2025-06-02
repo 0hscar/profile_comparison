@@ -23,6 +23,11 @@ def build_query_for_prompt(query: str, cards: list) -> str:
         Rating: {c.get("rating", "No Rating")}
         Price Level: {c.get("priceLevel", "No Price")}
         Rating Count: {c.get("ratingCount", "No Rating Count")}
+        Hours: {c.get("hours", "No Hours")}
+        Menu: {c.get("menu", "No Menu")}
+        Website: {c.get("website", "No Website")}
+        Photos: {c.get("photos", "No Photos")}
+
         """
     return query
 
@@ -35,6 +40,10 @@ class Profile(BaseModel):
     Cuisine: str
     Description: str
     AdditionalDetails: str
+    Hours: str
+    Menu: str
+    Website: str
+    Photos: list[str]
 
 
 class AnalysisOutput(BaseModel):

@@ -142,11 +142,15 @@ cd profile_comparison
 
 - **Testing:** Add full unit tests for both backend and frontend components, edge cases and error handling. No more 404 errors caused by empty variables.
 - **bug fixes:** Address any known issues or bugs. Known bugs include:
-  - Nearby restaurants are at times way off.
+  - Double API call on direct compare from nearby/similar list.
   - Some UI elements overlap.
 - **Mandatory Features:** AI response formating.
 - **Mandatory Cleanup:** Codebase cleaning
 - **Changed to response.parse:** Faster OpenAI responses 
+
+## Fixed bugs
+
+- **Nearby restaurants bug**
 
 
 ## Future features:

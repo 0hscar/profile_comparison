@@ -36,7 +36,7 @@ def compare_view(request: Json) -> JsonResponse:
         else:
             user_cards = []
             if user_business_name and user_business_location:
-                user_cards = get_or_cache_places_cards(user_business_name, user_business_location, num_places ,gl=gl )
+                user_cards = get_or_cache_places_cards(user_business_name, user_business_location, num_places , gl)
                 user_query = build_query_for_prompt("User Restaurant", user_cards)
                 print("non cached response qeuery", user_query)
 
@@ -45,7 +45,7 @@ def compare_view(request: Json) -> JsonResponse:
             user_card = user_cards[0]
 
         # Get competitors (excluding the user)
-        competitor_cards = get_or_cache_places_cards(query=query, location=location, gl=gl, num_places=num_places, fullInfo=False)
+        competitor_cards = get_or_cache_places_cards(query, location, num_places, gl, fullInfo=True)
         # Build competitor_query string
         competitor_query = build_query_for_prompt("Competitor Restaurants", competitor_cards)
         # Cache key for the AI response (include num_places for uniqueness)

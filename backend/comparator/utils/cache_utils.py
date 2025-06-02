@@ -56,7 +56,7 @@ def cache_given_list(restaurants: list, key_func, timeout=60*60):
         set_cached_data(cache_key, {"user_restaurant": r}, timeout=timeout)
         print(f"Cached restaurant: {cache_key}")
 
-def get_or_cache_places_cards(query: str, location: str, num_places: int, gl, fullInfo=False) -> list:
+def get_or_cache_places_cards(query: str, location: str, num_places: int, gl: str, fullInfo=False) -> list:
     """
     Fetches places cards for a given query and location, caching the result for 1 hour.
     """
@@ -65,6 +65,6 @@ def get_or_cache_places_cards(query: str, location: str, num_places: int, gl, fu
     if cached:
         print(f"Using cached places cards for key: {cache_key}")
         return cached
-    cards = get_places_cards(query, location, gl=gl, num_places=num_places, fullInfo=fullInfo)
+    cards = get_places_cards(query, location, gl, num_places, fullInfo)
     cache.set(cache_key, cards, timeout=60*60)
     return cards
