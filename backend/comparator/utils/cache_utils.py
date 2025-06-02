@@ -16,7 +16,6 @@ def check_for_cached_data(key):
     """
     data = cache.get(safe_cache_key(key))
     if data:
-        print(f"Using cached data for key: {key}")
         return data
     else:
         print(f"No cached data found for key: {key}")
@@ -61,7 +60,6 @@ def get_or_cache_places_cards(query: str, location: str, num_places: int, gl: st
     cache_key = safe_cache_key(f"places_cards:{query.lower().strip()}|{location.lower().strip()}|{gl}|{num_places}|{fullInfo}")
     cached = cache.get(cache_key)
     if cached:
-        print(f"Using cached places cards for key: {cache_key}")
         return cached
     cards = get_places_cards(query, location, gl, num_places, fullInfo)
     cache.set(cache_key, cards, timeout=60*60)
