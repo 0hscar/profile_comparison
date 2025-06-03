@@ -8,5 +8,6 @@ module.exports = {
   testMatch: ["**/*.spec.js"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "\\.(css|less|scss|sass)$": "<rootDir>/jest.mock.js",
   },
 };

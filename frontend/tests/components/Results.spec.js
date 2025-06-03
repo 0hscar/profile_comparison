@@ -18,7 +18,7 @@ describe("Results.vue", () => {
   it("shows results when loading is false", () => {
     const wrapper = mount(Results, {
       props: {
-        loading: false,
+        isLoading: false,
         userProfile: [{ Name: "Test", Address: "Somewhere", Rating: "5" }],
         competitorProfiles: [],
         comparison: [],

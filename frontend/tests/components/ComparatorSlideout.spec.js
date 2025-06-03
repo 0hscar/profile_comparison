@@ -66,7 +66,7 @@ describe("ComparatorSlideout.vue", () => {
     const wrapper = mount(ComparatorSlideout, {
       props: {
         open: true,
-        loading: true,
+        isLoading: true,
         userProfile: [],
         competitorProfiles: [],
         comparison: null,
@@ -89,6 +89,6 @@ describe("ComparatorSlideout.vue", () => {
       },
     });
     const results = wrapper.findComponent({ name: "ProfileResults" });
-    expect(results.props("loading")).toBe(true);
+    expect(results.props("isLoading")).toBe(true);
   });
 });

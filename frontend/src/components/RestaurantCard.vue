@@ -32,7 +32,7 @@
           </span>
         </div>
         <div class="compare-btn-wrapper">
-          <div style="position: relative;">
+          <div style="position: relative">
             <AppButton
               v-if="showDirectCompare && !isUser && !loadingCompare"
               type="button"
@@ -357,7 +357,8 @@ ul {
 }
 .expand-card-enter-active,
 .expand-card-leave-active {
-  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s, padding 0.35s;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s,
+    padding 0.35s;
   overflow: hidden;
 }
 .expand-card-enter-from,

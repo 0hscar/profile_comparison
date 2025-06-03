@@ -180,6 +180,14 @@ cd profile_comparison
 -- Caching prompts, responses and fetched data from Serper API.
 -- Feeds changeable data last into the AI prompt as OpenAI auto caches and it redoes it when it finds changed data. 
 
+## Fixed and passed tests
+
+- Results.spec.js
+- ComparatorSlideout.spec.js
+- InputForm.spec.js
+- RestaurantCard.spec.js
+- SidebarRestaurantList.spec.js 
+
 ## Explain
 - temperature. the lesser number minimized changeability in repsonses. Less varying answers, can be experimented with
 - csrf_exempt protects from unauthorized third party sites. 

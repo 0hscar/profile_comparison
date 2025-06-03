@@ -42,14 +42,14 @@
           v-if="
             userProfile ||
             (competitorProfiles && competitorProfiles.length) ||
-            loading
+            isLoading
           "
           :userProfile="userProfile"
           :competitorProfiles="competitorProfiles"
           :comparison="comparison"
           :suggestions="suggestions"
           :extraInsights="extraInsights"
-          :loading="loading"
+          :isLoading="isLoading"
           @reset="$emit('reset')"
         />
       </main>
@@ -85,7 +85,7 @@ export default {
     comparison: { type: [Object, Array], default: null },
     suggestions: { type: Object, default: null },
     extraInsights: { type: Object, default: null },
-    loading: { type: Boolean, default: false },
+    isLoading: { type: Boolean, default: false },
   },
 };
 </script>
