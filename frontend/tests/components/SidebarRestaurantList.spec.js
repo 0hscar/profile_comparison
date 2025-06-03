@@ -1,5 +1,6 @@
 const { mount } = require("@vue/test-utils");
-const SidebarRestaurantList = require("@/components/SidebarRestaurantList.vue");
+const SidebarRestaurantList =
+  require("@/components/SidebarRestaurantList.vue").default;
 
 describe("SidebarRestaurantList.vue", () => {
   it("renders user business and toggles", () => {
@@ -11,8 +12,8 @@ describe("SidebarRestaurantList.vue", () => {
         showNearby: true,
       },
       global: {
-        stubs: ['RestaurantCard']
-      }
+        stubs: ["RestaurantCard"],
+      },
     });
     expect(wrapper.text()).toContain("User Restaurant");
     expect(wrapper.text()).toContain("Nearby Restaurants");

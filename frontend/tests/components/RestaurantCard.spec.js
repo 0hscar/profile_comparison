@@ -1,7 +1,7 @@
 const { mount } = require("@vue/test-utils");
-
+const RestaurantCard = require("@/components/RestaurantCard.vue").default;
 // Mock the compareResponseHandler
-jest.mock("../../../src/utils/compareResponseHandler.js", () => ({
+jest.mock("@/utils/compareResponseHandler.js", () => ({
   __esModule: true,
   default: jest.fn(() =>
     Promise.resolve({

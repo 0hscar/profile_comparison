@@ -1,5 +1,6 @@
 const { mount } = require("@vue/test-utils");
-const ComparatorSlideout = require("@/components/ComparatorSlideout.vue");
+const ComparatorSlideout =
+  require("@/components/ComparatorSlideout.vue").default;
 
 describe("ComparatorSlideout.vue", () => {
   it("renders when open is true", () => {
@@ -20,7 +21,12 @@ describe("ComparatorSlideout.vue", () => {
         loading: false,
       },
       global: {
-        stubs: ["AppButton", "SidebarRestaurantList", "InputForm", "ProfileResults"],
+        stubs: [
+          "AppButton",
+          "SidebarRestaurantList",
+          "InputForm",
+          "ProfileResults",
+        ],
       },
     });
     expect(wrapper.find(".comparator-slideout.open").exists()).toBe(true);
@@ -44,7 +50,12 @@ describe("ComparatorSlideout.vue", () => {
         loading: false,
       },
       global: {
-        stubs: ["AppButton", "SidebarRestaurantList", "InputForm", "ProfileResults"],
+        stubs: [
+          "AppButton",
+          "SidebarRestaurantList",
+          "InputForm",
+          "ProfileResults",
+        ],
       },
     });
     await wrapper.find(".slideout-overlay").trigger("click");
@@ -69,7 +80,12 @@ describe("ComparatorSlideout.vue", () => {
         userBusinessLocation: "Test City",
       },
       global: {
-        stubs: ["AppButton", "SidebarRestaurantList", "InputForm", "ProfileResults"],
+        stubs: [
+          "AppButton",
+          "SidebarRestaurantList",
+          "InputForm",
+          "ProfileResults",
+        ],
       },
     });
     const results = wrapper.findComponent({ name: "ProfileResults" });

@@ -1,20 +1,22 @@
 const { mount } = require("@vue/test-utils");
-const ProfileResults = require("@/components/Results.vue");
+const Results = require("@/components/Results.vue").default;
 
-describe("ProfileResults.vue", () => {
+describe("Results.vue", () => {
   it("shows loader when loading is true", () => {
-    const wrapper = mount(ProfileResults, {
-      props: { loading: true },
+    const wrapper = mount(Results, {
+      props: { isLoading: true },
       global: {
         stubs: {},
       },
     });
+    console.log("Wrapper props :", wrapper.props());
+    console.log("Wrapper HTLM: ", wrapper.html());
     expect(wrapper.find(".results-spinner").exists()).toBe(true);
     expect(wrapper.text()).toContain("Loading results...");
   });
 
   it("shows results when loading is false", () => {
-    const wrapper = mount(ProfileResults, {
+    const wrapper = mount(Results, {
       props: {
         loading: false,
         userProfile: [{ Name: "Test", Address: "Somewhere", Rating: "5" }],
@@ -27,6 +29,7 @@ describe("ProfileResults.vue", () => {
         stubs: {},
       },
     });
+    console.log(wrapper.html());
     expect(wrapper.find(".results-spinner").exists()).toBe(false);
     expect(wrapper.text()).toContain("Test");
     expect(wrapper.text()).toContain("Somewhere");

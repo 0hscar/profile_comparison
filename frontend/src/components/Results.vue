@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="results-loading">
+  <div v-if="isLoading" class="results-loading">
     <span class="results-spinner"></span>
     <p>Loading results...</p>
   </div>
@@ -117,7 +117,7 @@
       </li>
     </ul>
   </div>
-  <div v-else class="loading">
+  <div v-else class="isLoading">
     <p>Loading results...</p>
   </div>
 </template>
@@ -152,12 +152,13 @@ export default {
       required: false,
       default: null,
     },
-    loading: {
+    isLoading: {
       type: Boolean,
       required: false,
       default: false,
     },
   },
+
   methods: {
     formatKey(key) {
       // Convert snake_case or camelCase to Title Case for display

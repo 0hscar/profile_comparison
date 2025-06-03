@@ -1,5 +1,5 @@
 const { mount } = require("@vue/test-utils");
-const InputForm = require("@/components/InputForm.vue");
+const InputForm = require("@/components/InputForm.vue").default;
 
 // Mock the compareResponseHandler
 jest.mock("@/utils/compareResponseHandler", () => ({

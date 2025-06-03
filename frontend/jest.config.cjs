@@ -5,6 +5,7 @@ module.exports = {
     "^.+\\.vue$": "vue-jest",
     "^.+\\.js$": "babel-jest",
   },
+  testMatch: ["**/*.spec.js"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },

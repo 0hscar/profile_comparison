@@ -170,3 +170,23 @@ cd profile_comparison
 
 - **Double API call on direct compare via nearby / similar list**
 - **After change to response.parse -> location / address gets ignored on OpenAI call. CRUCIAL FIX BEFORE LAUNCH**
+
+## Scope
+
+- Serper API (Google) + AI (GPT 4.1-mini) generated suggestions, comparison and extra insights
+- Either choose from a list of nearby / similar restaurant. Or Search for multiple by name or "thai food". Direct search also available. Simple UI implemented to achieve this
+- Designed as a slap-on slide-in feature for an existing Vue app
+- response.parse OpenAI call used for faster response times and structured returns
+-- Caching prompts, responses and fetched data from Serper API.
+-- Feeds changeable data last into the AI prompt as OpenAI auto caches and it redoes it when it finds changed data. 
+
+## Explain
+- temperature. the lesser number minimized changeability in repsonses. Less varying answers, can be experimented with
+- csrf_exempt protects from unauthorized third party sites. 
+
+## Left out
+- Chart generation/ visualization. -> future
+- Preview improvements using the AI generated content. --> Is a future feature in my mind, doesn't fit in a MVP
+- Web Scraping --> A massive improvement as LLMs based on limited data can get things wrong -> browse.ai recommended
+- Running modern local models if infrastructure can support it.
+- 
