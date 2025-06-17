@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 module.exports = {
   testEnvironment: "jsdom",
   moduleFileExtensions: ["js", "json", "vue"],

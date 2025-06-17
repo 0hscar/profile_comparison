@@ -6,10 +6,17 @@ module.exports = {
   },
   parser: "vue-eslint-parser",
   parserOptions: {
-    ecmaVersion: 12,
+    parser: "@babel/eslint-parser",
+    ecmaVersion: 2020,
     sourceType: "module",
   },
-  extends: ["eslint:recommended", "plugin:vue/vue3-essential"],
+  extends: ["eslint:recommended", "plugin:vue/recommended"],
+  globals: {
+    defineProps: "readonly",
+    defineEmits: "readonly",
+    defineExpose: "readonly",
+    withDefaults: "readonly",
+  },
   overrides: [
     {
       files: ["*.vue", "*.js", "*.ts", "*.spec.js", "*.test.js"],

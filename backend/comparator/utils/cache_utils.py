@@ -1,7 +1,6 @@
 import re
 from django.core.cache import cache
 from django.http import JsonResponse
-from comparator.utils.business_utils import get_places_cards
 
 def safe_cache_key(key):
     """
@@ -52,15 +51,3 @@ def cache_given_list(restaurants: list, key_func, timeout=60*60):
     for r in restaurants:
         cache_key = key_func(r)
         set_cached_data(cache_key, {"user_restaurant": r}, timeout=timeout)
-
-def get_or_cache_places_cards(query: str, location: str, num_places: int, gl: str, fullInfo=False) -> list:
-    """
-    Fetches places cards for a given query and location, caching the result for 1 hour.
-    """
-    cache_key = safe_cache_key(f"places_cards:{query.lower().strip()}|{location.lower().strip()}|{gl}|{num_places}|{fullInfo}")
-    cached = cache.get(cache_key)
-    if cached:
-        return cached
-    cards = get_places_cards(query, location, gl, num_places, fullInfo)
-    cache.set(cache_key, cards, timeout=60*60)
-    return cards
