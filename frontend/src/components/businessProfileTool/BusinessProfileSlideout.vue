@@ -16,30 +16,6 @@
     <div class="dashboard-layout">
       <!-- Sidebar: Business Search & Competitor List -->
       <aside class="sidebar">
-        <!-- Competitor List Placeholder -->
-        <section class="sidebar-section" v-if="selectedBusiness">
-          <h2 class="sidebar-title">Competitors</h2>
-          <ul class="competitor-list">
-            <li
-              v-for="comp in competitorHighlights"
-              :key="comp"
-              class="competitor-item"
-            >
-              {{ comp }}
-            </li>
-          </ul>
-        </section>
-        <!-- Gamification Badges -->
-        <section class="sidebar-section" v-if="selectedBusiness">
-          <h2 class="sidebar-title">Badges</h2>
-          <div class="badges-list">
-            <BadgeCard
-              v-for="badge in gamification.badges"
-              :key="badge.name"
-              :badge="badge"
-            />
-          </div>
-        </section>
         <!-- Business Info -->
         <section class="sidebar-section" v-if="selectedBusiness">
           <h2 class="sidebar-title">Business Info</h2>
@@ -60,6 +36,31 @@
               <strong>Price Level:</strong> {{ selectedBusiness.priceLevel }}
             </div>
           </div>
+        </section>
+        <!-- Gamification Badges -->
+        <section class="sidebar-section" v-if="selectedBusiness">
+          <h2 class="sidebar-title">Badges</h2>
+          <div class="badges-list">
+            <BadgeCard
+              v-for="badge in gamification.badges"
+              :key="badge.name"
+              :badge="badge"
+            />
+          </div>
+        </section>
+        <!-- Competitor List Placeholder -->
+        <section class="sidebar-section" v-if="selectedBusiness">
+          <h2 class="sidebar-title">Competitors</h2>
+          <ul class="competitor-list">
+            <li
+              v-for="comp in competitorList"
+              :key="comp.id || comp.name"
+              class="competitor-item"
+            >
+              {{ comp.name
+              }}<span v-if="comp.address"> -- {{ comp.address }}</span>
+            </li>
+          </ul>
         </section>
       </aside>
       <!-- Main Content: Profile Analysis & AI Features -->
@@ -247,6 +248,7 @@ defineProps({
 // State
 
 const selectedBusiness = ref(null);
+const competitorList = ref([]);
 const aiSuggestions = ref([]);
 const gamification = ref({ score: 0, badges: [] });
 const competitorHighlights = ref([]);
@@ -265,6 +267,8 @@ async function fetchAllProfileData() {
   loading.value = true;
   try {
     const profile = await api.fetchBusinessProfile();
+    const competitors = await api.fetchCompetitorsProfiles();
+    competitorList.value = competitors || [];
     selectedBusiness.value = {
       name: profile.name,
       address: profile.address,

@@ -5,6 +5,7 @@ import os
 from comparator.utils.cache_utils import check_for_cached_data, set_cached_data, safe_cache_key
 import json
 from functools import wraps
+import requests
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -20,6 +21,9 @@ class BusinessProfile(BaseModel):
     menu_url: str = ""
     website: str = ""
     photos: List[str] = []
+
+class BusinessProfileList(BaseModel):
+    List[BusinessProfile]
 
 class AISuggestion(BaseModel):
     suggestions: List[str]
@@ -50,6 +54,108 @@ def get_openai_client() -> openai.OpenAI:
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY environment variable is not set.")
     return openai.OpenAI(api_key=api_key)
+
+def get_competitors_from_serper(
+    profile: BusinessProfile,
+    mode: str = "nearby",
+    max_results: int = 5
+) -> Generator[BusinessProfile, None, None]:
+    """
+    Uses the Serper API to search for business competitors.
+    mode: "nearby" (default) or "similar"
+    Returns a list of BusinessProfile objects.
+    """
+
+    serper_api_key = os.environ.get("SERPER_API_KEY")
+    if not serper_api_key:
+        raise RuntimeError("SERPER_API_KEY environment variable is not set.")
+
+    # Build the search query
+    if mode == "nearby":
+        query = f"{profile.category} near {profile.address}"
+    elif mode == "similar":
+        query = f"{profile.category} similar to {profile.name} in {profile.address}"
+    else:
+        raise ValueError("mode must be 'nearby' or 'similar'")
+
+    headers = {
+        "X-API-KEY": serper_api_key,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "q": query,
+        "gl": "fi",
+        "hl": "en"
+    }
+    response = requests.post(
+        "https://google.serper.dev/places",
+        headers=headers,
+        json=payload
+    )
+    if response.status_code != 200:
+        raise RuntimeError(f"Serper API error: {response.status_code} {response.text}")
+
+    data = response.json()
+    places = data.get("places", [])[:max_results]
+
+    # Use OpenAI to structure the results into BusinessProfile objects
+    client = get_openai_client()
+    openai_prompt = f"""
+    Given the following raw search results for businesses, extract a list of up to {max_results} competitors as a JSON array.
+    Each competitor should be a JSON object with these fields: name, address, rating, review_count, price_level, category, description, hours, menu_url, website, photos.
+    If a field is missing, use an empty string or empty list as appropriate.
+
+    Raw search results:
+    {json.dumps(places, indent=2)}
+
+    Return ONLY a JSON array, not Python code, not markdown, not text, not BusinessProfile(...). Just plain JSON.
+    """
+
+    stream = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a data extraction assistant."},
+            {"role": "user", "content": openai_prompt}
+        ],
+        max_tokens=2048,
+        temperature=0.2,
+        stream=True,
+    )
+
+    buffer = ""
+    inside_array = False
+    brace_count = 0
+
+    for chunk in stream:
+        if hasattr(chunk.choices[0].delta, "content"):
+            text = chunk.choices[0].delta.content
+            for char in text:
+                if char == '[' and not inside_array:
+                    inside_array = True
+                    continue
+                if inside_array:
+                    buffer += char
+                    if char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            # Try to parse the object
+                            try:
+                                obj_str = buffer.strip().rstrip(',\n ')
+                                if obj_str.endswith(']'):
+                                    obj_str = obj_str[:-1]
+                                competitor = json.loads(obj_str)
+                                yield BusinessProfile(**competitor)
+                            except Exception:
+                                pass
+                            buffer = ""
+                    elif char == ']':
+                        return  # End of array
+
+
+
+
 
 @ai_cache(AISuggestion)
 def generate_ai_suggestions_core(profile: BusinessProfile, competitors: List[BusinessProfile]) -> AISuggestion:

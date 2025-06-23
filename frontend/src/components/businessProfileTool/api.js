@@ -16,6 +16,12 @@ export async function fetchBusinessProfile() {
   return res.data;
 }
 
+export async function fetchCompetitorsProfiles() {
+  const rest = await axios.get(`${BASE_URL}/competitors/`);
+  console.log(rest.data);
+  return rest.data;
+}
+
 // Fetch AI-generated suggestions for the business
 export async function fetchAISuggestions() {
   const res = await axios.get(`${BASE_URL}/ai-suggestions/`);
