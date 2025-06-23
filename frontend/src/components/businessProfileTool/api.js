@@ -7,6 +7,7 @@
 import axios from "axios";
 
 // Base URL for your Django backend API
+// Temp route fix, change in backend!
 const BASE_URL = "/api/api";
 
 // Fetch the full business profile

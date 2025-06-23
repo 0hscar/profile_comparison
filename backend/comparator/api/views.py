@@ -7,6 +7,8 @@ from comparator.utils.business_profile_ai_utils import (
     BusinessProfile, generate_ai_suggestions, simulate_what_if,
     profile_assistant_response, generate_social_caption
 )
+from comparator.utils.timing_utils import timeit
+
 from typing import Any, Dict
 
 # Example: Replace with real DB or external API in production
@@ -47,6 +49,7 @@ class WhatIfView(APIView):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@timeit("Profile Assistant Stream")
 def profile_assistant_stream(request):
     question = request.data.get("question", "")
     profile = BusinessProfile(**FAKE_PROFILE)
@@ -57,6 +60,7 @@ def profile_assistant_stream(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@timeit("Social Caption Stream")
 def social_caption_stream(request):
     prompt = request.data.get("prompt", "")
     profile = BusinessProfile(**FAKE_PROFILE)
