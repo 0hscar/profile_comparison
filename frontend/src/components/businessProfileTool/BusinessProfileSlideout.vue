@@ -11,7 +11,7 @@
       <button class="close-btn" aria-label="Close" @click="$emit('close')">
         &times;
       </button>
-      <h1>Business Profile Analyzer</h1>
+      <h1>Profile & Assistant</h1>
     </div>
     <div class="dashboard-layout">
       <!-- Sidebar: Business Search & Competitor List -->
@@ -137,44 +137,52 @@
             </div>
           </div>
         </section>
-        <!-- AI Suggestions -->
-        <section v-if="aiSuggestions.length" class="main-section">
-          <h2 class="main-title">AI Suggestions</h2>
-          <ul class="suggestions-list">
-            <li v-for="suggestion in aiSuggestions" :key="suggestion">
-              {{ suggestion }}
-            </li>
-          </ul>
-        </section>
-        <!-- What If Simulator -->
+        <!-- Unified AI Chat -->
         <section v-if="selectedBusiness" class="main-section">
-          <h2 class="main-title">What If Simulator</h2>
-          <div class="simulator-inputs">
-            <label>
-              Photos to Add
-              <input
-                type="number"
-                v-model.number="simulated.photos"
-                min="0"
-                class="simulator-input"
-              />
-            </label>
-            <label>
-              Reviews to Gain
-              <input
-                type="number"
-                v-model.number="simulated.reviews"
-                min="0"
-                class="simulator-input"
-              />
-            </label>
-            <button class="simulator-btn" @click="simulateImpact">
-              Simulate
+          <h2 class="main-title">AI Chat Assistant</h2>
+          <div class="gpt-chat-history">
+            <div
+              v-for="(msg, idx) in chatHistory"
+              :key="idx"
+              :class="[
+                'gpt-message',
+                msg.role === 'user'
+                  ? 'gpt-user'
+                  : msg.system
+                  ? 'gpt-system'
+                  : 'gpt-assistant',
+              ]"
+            >
+              <div v-if="msg.system" class="gpt-system-bubble">
+                {{ msg.content }}
+              </div>
+              <div
+                v-else-if="msg.role === 'assistant'"
+                class="gpt-assistant-bubble"
+              >
+                {{ msg.content }}
+              </div>
+              <div v-else-if="msg.role === 'user'" class="gpt-user-bubble">
+                {{ msg.content }}
+              </div>
+            </div>
+          </div>
+          <form class="gpt-chat-input-row" @submit.prevent="sendChat">
+            <input
+              v-model="chatInput"
+              type="text"
+              placeholder="Send a message..."
+              class="gpt-chat-input"
+              autocomplete="off"
+            />
+            <button
+              class="gpt-chat-send-btn"
+              :disabled="loading || !chatInput.trim()"
+            >
+              <span v-if="!loading">Send</span>
+              <span v-else>...</span>
             </button>
-          </div>
-          <div v-if="simulated.result !== null" class="simulator-result">
-            Predicted Profile Score: {{ simulated.result }}%
-          </div>
+          </form>
         </section>
         <!-- Local Market Trends -->
         <section v-if="localTrends.length" class="main-section">
@@ -209,40 +217,7 @@
             <li v-for="alert in competitorAlerts" :key="alert">{{ alert }}</li>
           </ul>
         </section>
-        <!-- Voice-Driven Profile Assistant -->
-        <section v-if="selectedBusiness" class="main-section">
-          <h2 class="main-title">Profile Assistant (Voice)</h2>
-          <div class="assistant-row">
-            <input
-              v-model="voiceQuery"
-              type="text"
-              placeholder="Ask how to improve your business..."
-              class="assistant-input"
-            />
-            <button class="assistant-btn" @click="askAssistant">Ask</button>
-          </div>
-          <div v-if="assistantResponse" class="assistant-response">
-            {{ assistantResponse }}
-          </div>
-        </section>
-        <!-- Social Media Booster -->
-        <section v-if="selectedBusiness" class="main-section">
-          <h2 class="main-title">Social Media Booster</h2>
-          <div class="booster-row">
-            <input
-              v-model="captionPrompt"
-              type="text"
-              placeholder="Describe your post or select a review/photo..."
-              class="booster-input"
-            />
-            <button class="booster-btn" @click="generateCaption">
-              Generate Caption
-            </button>
-          </div>
-          <div v-if="socialCaption" class="booster-response">
-            {{ socialCaption }}
-          </div>
-        </section>
+
         <!-- Snapshot Export -->
         <section v-if="selectedBusiness" class="main-section">
           <button class="export-btn" @click="exportSnapshot">
@@ -269,19 +244,24 @@ defineProps({
 
 const selectedBusiness = ref(null);
 const competitorList = ref([]);
-const aiSuggestions = ref([]);
 const gamification = ref({ score: 0, badges: [] });
 const competitorHighlights = ref([]);
-const simulated = ref({ photos: 0, reviews: 0, result: null });
 const localTrends = ref([]);
-const voiceQuery = ref("");
-const assistantResponse = ref("");
 const photoInsights = ref([]);
-const captionPrompt = ref("");
-const socialCaption = ref("");
 const profileHistory = ref([]);
 const competitorAlerts = ref([]);
 const loading = ref(false);
+
+// Unified AI Chat State
+const chatHistory = ref([
+  {
+    role: "assistant",
+    content:
+      '👋 Welcome! I\'m your Business Profile AI Assistant. You can ask me to help with things like generating social media post captions, simulating the effect of profile changes, analyzing competitors, or getting tips to improve your business profile. Try asking something like: "Write a catchy Instagram caption for my restaurant", "What would happen if I added 10 more photos?", or "How can I improve my Google ranking?"',
+    system: true,
+  },
+]);
+const chatInput = ref("");
 
 async function fetchAllProfileData() {
   loading.value = true;
@@ -303,7 +283,6 @@ async function fetchAllProfileData() {
       menuAvailable: profile.menu_available ?? false,
       menuUrl: profile.menu_url ?? "",
     };
-    console.log("selectedBusiness set to:", selectedBusiness.value);
     gamification.value = profile.gamification || { score: 0, badges: [] };
     competitorHighlights.value = profile.competitorHighlights || [];
     localTrends.value = profile.localTrends || [];
@@ -311,8 +290,8 @@ async function fetchAllProfileData() {
     profileHistory.value = profile.profileHistory || [];
     competitorAlerts.value = profile.competitorAlerts || [];
     // fallback for demo: if backend doesn't provide, keep empty
+    // No longer injecting AI suggestions into chat history
   } catch (e) {
-    // handle error
     selectedBusiness.value = null;
   }
   loading.value = false;
@@ -321,7 +300,6 @@ async function fetchAllProfileData() {
 async function fetchCompetitorProfiles() {
   try {
     const competitors = await api.fetchCompetitorsProfiles();
-    console.log("Raw comp from API:", competitors);
     // Ensure competitors is always an array
     const competitorArray = Array.isArray(competitors)
       ? competitors
@@ -336,54 +314,139 @@ async function fetchCompetitorProfiles() {
   }
 }
 
-async function fetchAISuggestions() {
-  try {
-    const data = await api.fetchAISuggestions();
-    aiSuggestions.value = data.suggestions || [];
-  } catch (e) {
-    aiSuggestions.value = [];
-  }
-}
-
-async function simulateImpact() {
-  loading.value = true;
-  try {
-    const changes = {
-      photos: simulated.value.photos,
-      reviews: simulated.value.reviews,
-    };
-    const result = await api.simulateWhatIf(changes);
-    simulated.value.result = result.predictedScore?.toFixed(1) ?? null;
-  } catch (e) {
-    simulated.value.result = null;
-  }
-  loading.value = false;
-}
-
-function askAssistant() {
-  assistantResponse.value = "";
-  api.streamProfileAssistant(voiceQuery.value, (chunk, fullText) => {
-    assistantResponse.value = fullText;
-  });
-}
-
-function generateCaption() {
-  socialCaption.value = "";
-  api.streamSocialCaption(captionPrompt.value, (chunk, fullText) => {
-    socialCaption.value = fullText;
-  });
-}
-
 function exportSnapshot() {
   // TODO: Implement snapshot export (e.g., html2pdf)
 }
 
+// Unified AI Chat send logic
+async function sendChat() {
+  const input = chatInput.value.trim();
+  if (!input) return;
+  chatHistory.value.push({ role: "user", content: input });
+  chatInput.value = "";
+  loading.value = true;
+
+  // Add a placeholder for the assistant's streaming response
+  chatHistory.value.push({ role: "assistant", content: "" });
+
+  try {
+    await api.streamProfileAssistant(input, (chunk, fullText) => {
+      // Update the last assistant message as the stream progresses
+      const lastMsg = chatHistory.value[chatHistory.value.length - 1];
+      if (lastMsg && lastMsg.role === "assistant") {
+        lastMsg.content = fullText;
+      }
+    });
+  } catch (e) {
+    const lastMsg = chatHistory.value[chatHistory.value.length - 1];
+    if (lastMsg && lastMsg.role === "assistant") {
+      lastMsg.content = "Sorry, I couldn't process your request.";
+    }
+  }
+  loading.value = false;
+}
+
 onMounted(async () => {
   await fetchAllProfileData();
-  await fetchAISuggestions();
   await fetchCompetitorProfiles();
 });
 </script>
+
+<style scoped>
+.gpt-chat-history {
+  background: #f7f7fa;
+  border-radius: 12px;
+  padding: 2em 1.5em 1em 1.5em;
+  margin-bottom: 1.5em;
+  max-height: 600px;
+  min-height: 350px;
+  overflow-y: auto;
+  border: 1px solid #e6eaf0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+}
+.gpt-message {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0;
+}
+.gpt-user {
+  justify-content: flex-end;
+}
+.gpt-user-bubble {
+  background: #e6f0fa;
+  color: #1a2b3c;
+  border-radius: 12px 12px 4px 12px;
+  padding: 0.9em 1.2em;
+  margin-left: auto;
+  max-width: 70%;
+  font-size: 1.08em;
+  box-shadow: 0 1px 2px #0001;
+}
+.gpt-assistant {
+  justify-content: flex-start;
+}
+.gpt-assistant-bubble {
+  background: #fff;
+  color: #222;
+  border-radius: 12px 12px 12px 4px;
+  padding: 0.9em 1.2em;
+  margin-right: auto;
+  max-width: 70%;
+  font-size: 1.08em;
+  box-shadow: 0 1px 2px #0001;
+}
+.gpt-system {
+  justify-content: center;
+  width: 100%;
+}
+.gpt-system-bubble {
+  background: #f3f3f6;
+  color: #888;
+  border-radius: 8px;
+  padding: 0.8em 1.1em;
+  margin: 0 auto;
+  font-size: 1.05em;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 1px 2px #0001;
+}
+.gpt-chat-input-row {
+  display: flex;
+  gap: 0.7em;
+  margin-top: 1em;
+  align-items: center;
+}
+.gpt-chat-input {
+  flex: 1;
+  padding: 1em;
+  border-radius: 8px;
+  border: 1px solid #e6eaf0;
+  font-size: 1.08em;
+  background: #f7f7fa;
+  transition: border 0.2s;
+}
+.gpt-chat-input:focus {
+  border: 1.5px solid #1761a0;
+  outline: none;
+}
+.gpt-chat-send-btn {
+  background: #1761a0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8em 1.6em;
+  font-size: 1.08em;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 600;
+}
+.gpt-chat-send-btn:disabled {
+  background: #b0b8c1;
+  cursor: not-allowed;
+}
+</style>
 
 <style scoped>
 .business-profile-slideout {
