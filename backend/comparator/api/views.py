@@ -8,6 +8,7 @@ from comparator.utils.business_profile_ai_utils import (
     profile_assistant_response, generate_social_caption, get_competitors_from_serper
 )
 from typing import Any, Dict
+import json
 
 # Example: Replace with real DB or external API in production
 FAKE_PROFILE = {
@@ -23,6 +24,9 @@ FAKE_PROFILE = {
     "website": "https://www.nordicbistro.fi/",
     "photos": [],
 }
+
+
+
 
 class BusinessProfileView(APIView):
     permission_classes = [AllowAny]
@@ -55,6 +59,25 @@ def profile_assistant_stream(request):
         for chunk in profile_assistant_response(question, profile):
             yield chunk
     return StreamingHttpResponse(stream(), content_type="text/plain")
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def stream_competitors(request):
+    """
+    Streams competitors as JSON objects, one per line.
+    """
+    profile = BusinessProfile(**FAKE_PROFILE)
+    mode = request.query_params.get("mode", "nearby")
+    max_results = int(request.query_params.get("max_results", 5))
+
+    def stream():
+        for competitor in get_competitors_from_serper(profile, mode=mode, max_results=max_results):
+            print(f"Streaming competitor: {competitor.name}")
+            yield json.dumps(competitor.dict()) + "\n"
+
+
+    return StreamingHttpResponse(stream(), content_type="application/json")
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

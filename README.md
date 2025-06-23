@@ -138,7 +138,18 @@ cd profile_comparison
 
 ---
 
-## Still to do
+## Ver0.2
+### TODO:
+- **Streaming responses to the frontend**
+- 
+
+
+
+
+
+
+
+## Still to do. OLD VERSION
 
 - **Testing:** Add full unit tests for both backend and frontend components, edge cases and error handling. No more 404 errors caused by empty variables.
 - **bug fixes:** Address any known issues or bugs. Known bugs include:
@@ -148,7 +159,7 @@ cd profile_comparison
 - **Mandatory Features:** AI response formating.
 - **Mandatory Cleanup:** Codebase cleaning 
 
-## Fixed bugs
+## Fixed bugs. OLD VERSION
 
 - **Nearby restaurants bug**
 
@@ -156,7 +167,7 @@ cd profile_comparison
 
 - **Changed to response.parse:** Faster OpenAI responses
 
-## Future features:
+## Future features: OLD VERSION
 
 - **Improvements:** More data soures, Improved UI/UX based on customers requests / self noticed possibilities, Focused data driven / Casual data driven suggestions.  
 - **Streaming AI Response**
@@ -166,12 +177,12 @@ cd profile_comparison
 - **Charts:** Either AI generated or coded.
 - **Country Codes:** Mapping country codes "fi": "Finland",
 
-### Not visible for user
+### Not visible for user OLD VERSION
 
 - **Double API call on direct compare via nearby / similar list**
 - **After change to response.parse -> location / address gets ignored on OpenAI call. CRUCIAL FIX BEFORE LAUNCH**
 
-## Scope
+## Scope. OLD VERSION
 
 - Serper API (Google) + AI (GPT 4.1-mini) generated suggestions, comparison and extra insights
 - Either choose from a list of nearby / similar restaurant. Or Search for multiple by name or "thai food". Direct search also available. Simple UI implemented to achieve this
@@ -180,7 +191,7 @@ cd profile_comparison
 -- Caching prompts, responses and fetched data from Serper API.
 -- Feeds changeable data last into the AI prompt as OpenAI auto caches and it redoes it when it finds changed data. 
 
-## Fixed and passed tests
+## Fixed and passed tests. OLD VERSION
 
 - Results.spec.js
 - ComparatorSlideout.spec.js
@@ -188,11 +199,11 @@ cd profile_comparison
 - RestaurantCard.spec.js
 - SidebarRestaurantList.spec.js 
 
-## Explain
+## Explain. OLD VERSION
 - temperature. the lesser number minimized changeability in repsonses. Less varying answers, can be experimented with
 - csrf_exempt protects from unauthorized third party sites. 
 
-## Left out
+## Left out. OLD VERSION 
 - Chart generation/ visualization. -> future
 - Preview improvements using the AI generated content. --> Is a future feature in my mind, doesn't fit in a MVP
 - Web Scraping --> A massive improvement as LLMs based on limited data can get things wrong -> browse.ai recommended

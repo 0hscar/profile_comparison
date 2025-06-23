@@ -5,6 +5,7 @@ import os
 from comparator.utils.cache_utils import check_for_cached_data, set_cached_data, safe_cache_key
 import json
 from functools import wraps
+import requests
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -64,7 +65,6 @@ def get_competitors_from_serper(
     mode: "nearby" (default) or "similar"
     Returns a list of BusinessProfile objects.
     """
-    import requests
 
     serper_api_key = os.environ.get("SERPER_API_KEY")
     if not serper_api_key:
