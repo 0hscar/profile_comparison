@@ -18,7 +18,6 @@ export async function fetchBusinessProfile() {
 
 export async function fetchCompetitorsProfiles() {
   const rest = await axios.get(`${BASE_URL}/competitors/`);
-  console.log(rest.data);
   return rest.data;
 }
 

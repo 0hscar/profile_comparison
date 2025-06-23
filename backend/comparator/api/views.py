@@ -25,6 +25,18 @@ FAKE_PROFILE = {
     "menu_url": "https://www.nordicbistro.fi/menu/",
     "website": "https://www.nordicbistro.fi/",
     "photos": [],
+    "profile_completeness": 92,
+    "photo_count": 24,
+    "recent_reviews": 18,
+    "last_profile_update": "2024-06-01",
+    "menu_available": True,
+    "gamification": {
+        "score": 87,
+        "badges": [
+            {"name": "Photo Pro", "description": "Uploaded 20+ photos"},
+            {"name": "Review Magnet", "description": "500+ reviews"}
+        ]
+    }
 }
 
 
@@ -66,21 +78,19 @@ def profile_assistant_stream(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def stream_competitors(request):
+def get_competitors(request):
     """
-    Streams competitors as JSON objects, one per line.
+    Returns competitors as a JSON array.
     """
     profile = BusinessProfile(**FAKE_PROFILE)
     mode = request.query_params.get("mode", "nearby")
     max_results = int(request.query_params.get("max_results", 5))
 
-    def stream():
-        for competitor in get_competitors_from_serper(profile, mode=mode, max_results=max_results):
-            print(f"Streaming competitor: {competitor.name}")
-            yield json.dumps(competitor.dict()) + "\n"
-
-
-    return StreamingHttpResponse(stream(), content_type="application/json")
+    competitors = [
+        competitor.dict()
+        for competitor in get_competitors_from_serper(profile, mode=mode, max_results=max_results)
+    ]
+    return Response(competitors)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

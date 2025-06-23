@@ -21,6 +21,12 @@ class BusinessProfile(BaseModel):
     menu_url: str = ""
     website: str = ""
     photos: List[str] = []
+    profile_completeness: int = 0
+    photo_count: int = 0
+    recent_reviews: int = 0
+    last_profile_update: str = ""
+    menu_available: bool = False
+    gamification: dict = {}
 
 class BusinessProfileList(BaseModel):
     List[BusinessProfile]
@@ -63,12 +69,9 @@ def get_competitors_from_serper(
     """
     Uses the Serper API to search for business competitors.
     mode: "nearby" (default) or "similar"
-    Returns a list of BusinessProfile objects.
+    Returns a generator of BusinessProfile objects.
+    Now uses only Serper API and caches results for scalability.
     """
-
-    serper_api_key = os.environ.get("SERPER_API_KEY")
-    if not serper_api_key:
-        raise RuntimeError("SERPER_API_KEY environment variable is not set.")
 
     # Build the search query
     if mode == "nearby":
@@ -77,6 +80,22 @@ def get_competitors_from_serper(
         query = f"{profile.category} similar to {profile.name} in {profile.address}"
     else:
         raise ValueError("mode must be 'nearby' or 'similar'")
+
+    cache_key = safe_cache_key(
+        f"serper_competitors:{query}|max_results={max_results}"
+    )
+    cached = check_for_cached_data(cache_key)
+    if cached:
+        for competitor_dict in cached:
+            try:
+                yield BusinessProfile(**competitor_dict)
+            except Exception:
+                continue
+        return
+
+    serper_api_key = os.environ.get("SERPER_API_KEY")
+    if not serper_api_key:
+        raise RuntimeError("SERPER_API_KEY environment variable is not set.")
 
     headers = {
         "X-API-KEY": serper_api_key,
@@ -87,72 +106,59 @@ def get_competitors_from_serper(
         "gl": "fi",
         "hl": "en"
     }
-    response = requests.post(
-        "https://google.serper.dev/places",
-        headers=headers,
-        json=payload
-    )
-    if response.status_code != 200:
-        raise RuntimeError(f"Serper API error: {response.status_code} {response.text}")
+    try:
+        response = requests.post(
+            "https://google.serper.dev/places",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+        response.raise_for_status()
+    except requests.RequestException as e:
+        # Log error and return no competitors
+        print(f"Error fetching competitors from Serper API: {e}")
+        return
 
-    data = response.json()
+    try:
+        data = response.json()
+    except Exception as e:
+        print(f"Error parsing Serper API response as JSON: {e}")
+        return
+
     places = data.get("places", [])[:max_results]
 
-    # Use OpenAI to structure the results into BusinessProfile objects
-    client = get_openai_client()
-    openai_prompt = f"""
-    Given the following raw search results for businesses, extract a list of up to {max_results} competitors as a JSON array.
-    Each competitor should be a JSON object with these fields: name, address, rating, review_count, price_level, category, description, hours, menu_url, website, photos.
-    If a field is missing, use an empty string or empty list as appropriate.
+    competitors = []
+    for place in places:
+        try:
+            competitor = {
+                "name": place.get("title", ""),
+                "address": place.get("address", ""),
+                "rating": float(place.get("rating", 0.0)) if place.get("rating") is not None else 0.0,
+                "review_count": int(place.get("reviews", 0)) if place.get("reviews") is not None else 0,
+                "price_level": place.get("price", ""),
+                "category": place.get("category", ""),
+                "description": place.get("description", ""),
+                "hours": place.get("hours", []) if isinstance(place.get("hours", []), list) else [],
+                "menu_url": place.get("menu", ""),
+                "website": place.get("website", ""),
+                "photos": place.get("photos", []) if isinstance(place.get("photos", []), list) else [],
+            }
+            # Filter out competitors with missing name or address
+            if not competitor["name"] or not competitor["address"]:
+                continue
+            competitors.append(competitor)
+        except Exception as e:
+            print(f"Error mapping competitor data: {e}")
+            continue
 
-    Raw search results:
-    {json.dumps(places, indent=2)}
+    set_cached_data(cache_key, competitors)
 
-    Return ONLY a JSON array, not Python code, not markdown, not text, not BusinessProfile(...). Just plain JSON.
-    """
-
-    stream = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a data extraction assistant."},
-            {"role": "user", "content": openai_prompt}
-        ],
-        max_tokens=2048,
-        temperature=0.2,
-        stream=True,
-    )
-
-    buffer = ""
-    inside_array = False
-    brace_count = 0
-
-    for chunk in stream:
-        if hasattr(chunk.choices[0].delta, "content"):
-            text = chunk.choices[0].delta.content
-            for char in text:
-                if char == '[' and not inside_array:
-                    inside_array = True
-                    continue
-                if inside_array:
-                    buffer += char
-                    if char == '{':
-                        brace_count += 1
-                    elif char == '}':
-                        brace_count -= 1
-                        if brace_count == 0:
-                            # Try to parse the object
-                            try:
-                                obj_str = buffer.strip().rstrip(',\n ')
-                                if obj_str.endswith(']'):
-                                    obj_str = obj_str[:-1]
-                                competitor = json.loads(obj_str)
-                                yield BusinessProfile(**competitor)
-                            except Exception:
-                                pass
-                            buffer = ""
-                    elif char == ']':
-                        return  # End of array
-
+    for competitor_dict in competitors:
+        try:
+            yield BusinessProfile(**competitor_dict)
+        except Exception as e:
+            print(f"Error creating BusinessProfile from dict: {e}")
+            continue
 
 
 

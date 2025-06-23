@@ -48,19 +48,39 @@
             />
           </div>
         </section>
-        <!-- Competitor List Placeholder -->
+        <!-- Competitor List Enhanced -->
         <section class="sidebar-section" v-if="selectedBusiness">
           <h2 class="sidebar-title">Competitors</h2>
-          <ul class="competitor-list">
-            <li
+          <div class="competitor-list">
+            <div
               v-for="comp in competitorList"
               :key="comp.id || comp.name"
               class="competitor-item"
             >
-              {{ comp.name
-              }}<span v-if="comp.address"> -- {{ comp.address }}</span>
-            </li>
-          </ul>
+              <div class="competitor-header">
+                <a
+                  v-if="comp.website"
+                  :href="comp.website"
+                  target="_blank"
+                  rel="noopener"
+                  class="competitor-name"
+                >
+                  {{ comp.name }}
+                </a>
+                <span v-else class="competitor-name">{{ comp.name }}</span>
+                <span class="competitor-rating" v-if="comp.rating">
+                  {{ comp.rating }} ★
+                </span>
+                <span class="competitor-rating" v-else> N/A </span>
+              </div>
+              <div class="competitor-category" v-if="comp.category">
+                {{ comp.category }}
+              </div>
+              <div class="competitor-address" v-if="comp.address">
+                {{ comp.address }}
+              </div>
+            </div>
+          </div>
         </section>
       </aside>
       <!-- Main Content: Profile Analysis & AI Features -->
@@ -267,8 +287,6 @@ async function fetchAllProfileData() {
   loading.value = true;
   try {
     const profile = await api.fetchBusinessProfile();
-    const competitors = await api.fetchCompetitorsProfiles();
-    competitorList.value = competitors || [];
     selectedBusiness.value = {
       name: profile.name,
       address: profile.address,
@@ -276,7 +294,16 @@ async function fetchAllProfileData() {
       website: profile.website || "",
       category: profile.category || "",
       priceLevel: profile.price_level || "",
+      rating: profile.rating ?? null,
+      review_count: profile.review_count ?? null,
+      recentReviews: profile.recent_reviews ?? null,
+      photoCount: profile.photo_count ?? null,
+      profileCompleteness: profile.profile_completeness ?? null,
+      lastProfileUpdate: profile.last_profile_update ?? null,
+      menuAvailable: profile.menu_available ?? false,
+      menuUrl: profile.menu_url ?? "",
     };
+    console.log("selectedBusiness set to:", selectedBusiness.value);
     gamification.value = profile.gamification || { score: 0, badges: [] };
     competitorHighlights.value = profile.competitorHighlights || [];
     localTrends.value = profile.localTrends || [];
@@ -289,6 +316,24 @@ async function fetchAllProfileData() {
     selectedBusiness.value = null;
   }
   loading.value = false;
+}
+
+async function fetchCompetitorProfiles() {
+  try {
+    const competitors = await api.fetchCompetitorsProfiles();
+    console.log("Raw comp from API:", competitors);
+    // Ensure competitors is always an array
+    const competitorArray = Array.isArray(competitors)
+      ? competitors
+      : competitors
+      ? Object.values(competitors)
+      : [];
+    competitorList.value = competitorArray.filter(
+      (comp) => comp.name && comp.address
+    );
+  } catch (e) {
+    competitorList.value = [];
+  }
 }
 
 async function fetchAISuggestions() {
@@ -336,6 +381,7 @@ function exportSnapshot() {
 onMounted(async () => {
   await fetchAllProfileData();
   await fetchAISuggestions();
+  await fetchCompetitorProfiles();
 });
 </script>
 
@@ -477,11 +523,48 @@ onMounted(async () => {
   background: #1761a0;
 }
 .competitor-list {
-  list-style: disc inside;
-  padding-left: 1rem;
+  margin-top: 2em;
 }
+
 .competitor-item {
-  margin-bottom: 0.25rem;
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #eee;
+}
+
+.competitor-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 500;
+}
+
+.competitor-name {
+  color: #2a5db0;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.competitor-name:hover {
+  text-decoration: underline;
+}
+
+.competitor-rating {
+  color: #f5b301;
+  font-size: 0.95em;
+  margin-left: 0.5em;
+}
+
+.competitor-category {
+  font-size: 0.95em;
+  color: #666;
+  margin-top: 0.1em;
+}
+
+.competitor-address {
+  font-size: 0.93em;
+  color: #888;
+  margin-top: 0.1em;
 }
 .badges-list {
   display: flex;
