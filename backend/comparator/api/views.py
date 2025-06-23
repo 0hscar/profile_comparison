@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from django.http import StreamingHttpResponse
 from comparator.utils.business_profile_ai_utils import (
     BusinessProfile, generate_ai_suggestions, simulate_what_if,
-    profile_assistant_response, generate_social_caption
+    profile_assistant_response, generate_social_caption, get_competitors_from_serper
 )
 from typing import Any, Dict
 
@@ -33,7 +33,8 @@ class AISuggestionsView(APIView):
     permission_classes = [AllowAny]
     def get(self, request):
         profile = BusinessProfile(**FAKE_PROFILE)
-        competitors = [BusinessProfile(**FAKE_PROFILE)]  # Replace with real competitors
+        competitors = get_competitors_from_serper(profile, mode="nearby", max_results=5)
+        # competitors = [BusinessProfile(**FAKE_PROFILE)]  # Replace with real competitors
         suggestions = generate_ai_suggestions(profile, competitors)
         return Response(suggestions.dict())
 
