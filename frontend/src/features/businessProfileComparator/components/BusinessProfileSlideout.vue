@@ -51,13 +51,13 @@
           v-if="photoInsights.length"
           :insights="photoInsights"
         />
-        <!-- Profile History (Toggleable) -->
-        <ProfileHistoryCard v-if="selectedBusiness" :history="profileHistory" />
         <!-- Competitor Alerts -->
         <CompetitorAlertsCard
           v-if="competitorAlerts.length"
           :alerts="competitorAlerts"
         />
+        <!-- Profile History (Toggleable) -->
+        <ProfileHistoryCard v-if="selectedBusiness" :history="profileHistory" />
 
         <!-- Snapshot Export -->
         <section v-if="selectedBusiness" class="main-section">
@@ -261,5 +261,19 @@ function goToEditProfile() {
     max-width: 100vw;
     padding: 0;
   }
+}
+.main-content {
+  flex: 1 1 65%;
+  max-width: 65%;
+  min-width: 0;
+  word-break: break-word;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 0;
+  height: auto;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 </style>
