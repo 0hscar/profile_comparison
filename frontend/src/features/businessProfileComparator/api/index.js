@@ -5,24 +5,25 @@
 
 import axios from "axios";
 
-// Base URL for your Django backend API
-// Temp route fix, change in backend!
-const BASE_URL = "/api/api";
+// Base URLs for your Django backend API (modularized by feature)
+const PROFILE_BASE_URL = "/api/profiles";
+const COMPETITOR_BASE_URL = "/api/competitors";
+const AI_BASE_URL = "/api/ai";
 
 // Fetch the full business profile
 export async function fetchBusinessProfile() {
-  const res = await axios.get(`${BASE_URL}/business-profile/`);
+  const res = await axios.get(`${PROFILE_BASE_URL}/business-profile/`);
   return res.data;
 }
 
 export async function fetchCompetitorsProfiles() {
-  const rest = await axios.get(`${BASE_URL}/competitors/`);
+  const rest = await axios.get(`${COMPETITOR_BASE_URL}/competitors/`);
   return rest.data;
 }
 
 // Stream profile assistant AI response (conversational)
 export async function streamProfileAssistant(question, onChunk) {
-  const response = await fetch(`${BASE_URL}/profile-assistant/`, {
+  const response = await fetch(`${AI_BASE_URL}/profile-assistant/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question }),

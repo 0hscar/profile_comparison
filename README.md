@@ -203,11 +203,13 @@ cd profile_comparison
 - **Bug fixes**: Address known issues:
   - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
   - Streaming responses not working properly
+  - Input field stopped rezising after a few lines.
 - **Features**:
   - Instant compare against nearby/similar restaurants
   - Toggle between nearby and similar lists
   - AI response formatting / cleanliness
 - **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
+- **Finalize restructuring**: Ensure the project structure is clean and logical.
 - **Quality of life improvements**:
   - Enter to send to AI, Shift + Enter to add a new line
   - **AI response formatting**: Ensure AI responses are clean and well-formatted.
