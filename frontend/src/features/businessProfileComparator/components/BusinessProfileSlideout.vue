@@ -130,7 +130,7 @@ function goToEditProfile() {
   position: fixed;
   top: 0;
   right: 0;
-  width: clamp(960px, 50vw, 100vw);
+  width: clamp(960px, 75vw, 100vw);
   min-width: 0;
   max-width: 100vw;
   height: 100vh;
