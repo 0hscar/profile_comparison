@@ -79,6 +79,9 @@
               <div class="competitor-address" v-if="comp.address">
                 {{ comp.address }}
               </div>
+              <button class="compare-btn" @click="insertCompetitorPrompt(comp)">
+                Compare
+              </button>
             </div>
           </div>
         </section>
@@ -86,54 +89,100 @@
       <!-- Main Content: Profile Analysis & AI Features -->
       <main class="main-content">
         <!-- Profile Health & Score -->
-        <section v-if="selectedBusiness" class="main-section">
+        <section
+          v-if="selectedBusiness"
+          class="main-section profile-health-modern"
+        >
           <h2 class="main-title">Profile Health</h2>
-          <div class="score-bar">
-            <progress
-              :value="gamification.score"
-              max="100"
-              class="score-progress"
-            ></progress>
-            <span class="score-label">{{ gamification.score }}%</span>
-          </div>
-          <div v-if="gamification.score === 100" class="score-complete">
-            🎉 Your profile is fully optimized! Keep it fresh for ongoing
-            rewards.
-          </div>
-          <div class="profile-stats">
-            <div>
-              <strong>Rating:</strong>
-              {{ selectedBusiness && selectedBusiness.rating }} ({{
-                selectedBusiness && selectedBusiness.review_count
-              }}
-              reviews)
-            </div>
-            <div>
-              <strong>Recent Reviews:</strong>
-              {{ selectedBusiness && selectedBusiness.recentReviews }} (last 3
-              months)
-            </div>
-            <div>
-              <strong>Photo Count:</strong>
-              {{ selectedBusiness && selectedBusiness.photoCount }}
-            </div>
-            <div>
-              <strong>Menu:</strong>
-              <a
-                v-if="selectedBusiness && selectedBusiness.menuAvailable"
-                :href="selectedBusiness && selectedBusiness.menuUrl"
-                target="_blank"
-                >View Menu</a
+          <div class="profile-health-card">
+            <div class="profile-health-header">
+              <span class="profile-health-score-label">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="12"
+                    fill="#2d8cf0"
+                    fill-opacity="0.12"
+                  />
+                  <path
+                    d="M7 13.5L10.5 17L17 10.5"
+                    stroke="#2d8cf0"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Health Score
+              </span>
+              <span class="profile-health-score-value"
+                >{{ gamification.score }}%</span
               >
-              <span v-else>No menu online</span>
             </div>
-            <div>
-              <strong>Profile Completeness:</strong>
-              {{ selectedBusiness && selectedBusiness.profileCompleteness }}%
+            <div class="profile-health-bar-outer">
+              <div
+                class="profile-health-bar-inner"
+                :style="{ width: gamification.score + '%' }"
+              ></div>
             </div>
-            <div>
-              <strong>Last Update:</strong>
-              {{ selectedBusiness && selectedBusiness.lastProfileUpdate }}
+            <div
+              v-if="gamification.score === 100"
+              class="score-complete-modern"
+            >
+              🎉 Your profile is fully optimized! Keep it fresh for ongoing
+              rewards.
+            </div>
+            <div class="profile-health-stats-row">
+              <div class="profile-health-stat">
+                <span class="stat-label">Rating</span>
+                <span class="stat-value">
+                  {{ selectedBusiness && selectedBusiness.rating }}
+                  <span
+                    v-if="selectedBusiness && selectedBusiness.review_count"
+                    class="stat-sub"
+                    >({{ selectedBusiness.review_count }} reviews)</span
+                  >
+                </span>
+              </div>
+              <div class="profile-health-stat">
+                <span class="stat-label">Recent Reviews</span>
+                <span class="stat-value">
+                  {{ selectedBusiness && selectedBusiness.recentReviews }}
+                  <span class="stat-sub">(last 3 months)</span>
+                </span>
+              </div>
+              <div class="profile-health-stat">
+                <span class="stat-label">Photos</span>
+                <span class="stat-value">{{
+                  selectedBusiness && selectedBusiness.photoCount
+                }}</span>
+              </div>
+              <div class="profile-health-stat">
+                <span class="stat-label">Menu</span>
+                <span class="stat-value">
+                  <a
+                    v-if="selectedBusiness && selectedBusiness.menuAvailable"
+                    :href="selectedBusiness && selectedBusiness.menuUrl"
+                    target="_blank"
+                    >View Menu</a
+                  >
+                  <span v-else>No menu online</span>
+                </span>
+              </div>
+              <div class="profile-health-stat">
+                <span class="stat-label">Completeness</span>
+                <span class="stat-value"
+                  >{{
+                    selectedBusiness && selectedBusiness.profileCompleteness
+                  }}%</span
+                >
+              </div>
+              <div class="profile-health-stat">
+                <span class="stat-label">Last Update</span>
+                <span class="stat-value">{{
+                  selectedBusiness && selectedBusiness.lastProfileUpdate
+                }}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -168,12 +217,14 @@
             </div>
           </div>
           <form class="gpt-chat-input-row" @submit.prevent="sendChat">
-            <input
+            <textarea
               v-model="chatInput"
-              type="text"
               placeholder="Send a message..."
-              class="gpt-chat-input"
+              class="gpt-chat-input gpt-chat-textarea"
               autocomplete="off"
+              rows="1"
+              @input="autoGrowChatInput"
+              ref="chatInputRef"
             />
             <button
               class="gpt-chat-send-btn"
@@ -231,7 +282,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import BadgeCard from "./BadgeCard.vue";
 import * as api from "./api.js";
 
@@ -262,6 +313,23 @@ const chatHistory = ref([
   },
 ]);
 const chatInput = ref("");
+const chatInputRef = ref(null);
+
+function autoGrowChatInput() {
+  nextTick(() => {
+    const el = chatInputRef.value;
+    if (el) {
+      el.style.height = "auto";
+      el.style.overflowY = "hidden";
+      el.style.height = el.scrollHeight + "px";
+      if (el.scrollHeight > 160) {
+        // ~8 lines
+        el.style.overflowY = "auto";
+        el.style.height = "160px";
+      }
+    }
+  });
+}
 
 async function fetchAllProfileData() {
   loading.value = true;
@@ -346,6 +414,27 @@ async function sendChat() {
   loading.value = false;
 }
 
+function insertCompetitorPrompt(comp) {
+  const prompt = `Compare my business profile with the following competitor:
+
+Name: ${comp.name}
+Address: ${comp.address || "Not found"}
+Category: ${comp.category || "Not found"}
+Price: ${comp.price_level || "Not found"}
+Rating: ${comp.rating || "Not found"}
+Rating Count: ${comp.review_count || "Not found"}
+Hours: ${comp.hours || "Not found"}
+Phone: ${comp.phone || "Not found"}
+Menu: ${comp.menu_url || "Not found"}
+Website: ${comp.website || "Not found"}
+Description: ${comp.description || "Not found"}
+Photos: ${comp.photos || "Not found"}
+
+Highlight key differences and similarities. Give actionable suggestions to improve my profile based on this competitor.`;
+  chatInput.value = prompt;
+  autoGrowChatInput();
+}
+
 onMounted(async () => {
   await fetchAllProfileData();
   await fetchCompetitorProfiles();
@@ -426,10 +515,21 @@ onMounted(async () => {
   font-size: 1.08em;
   background: #f7f7fa;
   transition: border 0.2s;
+  resize: none;
+  min-height: 2.5em;
+  max-height: 160px;
+  overflow-y: auto;
+  line-height: 1.5;
+  box-sizing: border-box;
 }
 .gpt-chat-input:focus {
   border: 1.5px solid #1761a0;
   outline: none;
+}
+.gpt-chat-textarea {
+  width: 100%;
+  font-family: inherit;
+  display: block;
 }
 .gpt-chat-send-btn {
   background: #1761a0;
@@ -541,6 +641,130 @@ onMounted(async () => {
   font-weight: bold;
   margin-bottom: 0.5rem;
   color: #2d8cf0;
+}
+
+/* --- Modern Profile Health Card Styles --- */
+.profile-health-modern {
+  padding: 0;
+  margin-bottom: 2.5rem;
+}
+
+.profile-health-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px #2d8cf01a, 0 1.5px 6px #0001;
+  padding: 2.2em 2em 1.5em 2em;
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  align-items: stretch;
+}
+
+.profile-health-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7em;
+}
+
+.profile-health-score-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 600;
+  color: #2d8cf0;
+  font-size: 1.1em;
+  letter-spacing: 0.01em;
+}
+
+.profile-health-score-value {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: -0.01em;
+}
+
+.profile-health-bar-outer {
+  width: 100%;
+  height: 18px;
+  background: #e6eaf0;
+  border-radius: 9px;
+  overflow: hidden;
+  margin-bottom: 0.7em;
+  box-shadow: 0 1px 4px #2d8cf005;
+}
+
+.profile-health-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #2d8cf0 60%, #5ad1e6 100%);
+  border-radius: 9px 0 0 9px;
+  transition: width 0.5s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+.score-complete-modern {
+  background: #e6f9e6;
+  color: #1a7f37;
+  border-radius: 8px;
+  padding: 0.7em 1em;
+  font-size: 1.05em;
+  margin-bottom: 0.7em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.profile-health-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em 2.5em;
+  margin-top: 0.5em;
+}
+
+.profile-health-stat {
+  min-width: 140px;
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  margin-bottom: 0.5em;
+}
+
+.stat-label {
+  color: #888;
+  font-size: 0.98em;
+  font-weight: 500;
+  margin-bottom: 0.1em;
+}
+
+.stat-value {
+  color: #222;
+  font-size: 1.08em;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.stat-sub {
+  color: #b0b8c1;
+  font-size: 0.93em;
+  font-weight: 400;
+  margin-left: 0.3em;
+}
+
+.compare-btn {
+  margin-top: 0.5em;
+  background: #2d8cf0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em 1em;
+  cursor: pointer;
+  font-size: 0.98em;
+  transition: background 0.2s;
+}
+.compare-btn:hover {
+  background: #1761a0;
 }
 .sidebar-input {
   width: 100%;

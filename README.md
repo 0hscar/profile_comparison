@@ -144,34 +144,34 @@ cd profile_comparison
 
 ### Scope:
 - **AI-powered business profile**.
--- Modern Chat style Assistant.
--- Interaction through a single input field.
--- Streaming responses
+  - Modern Chat style Assistant. CHECK
+  - Interaction through a single input field. CHECK
+  - Streaming responses. SHOULD BE WORKING, BUT NOT ATM
 - **Profile Analysis**.
--- Ask AI assistant to analyze your business profile, such as:
-  --- "What are my strengths?"
-  --- "What are my weaknesses?"
-  --- "How can I improve my profile?"
-  --- Profile completeness.
-  --- And more.
+  - Ask AI assistant to analyze your business profile, such as: CHECK
+    - "What are my strengths?"
+    - "What are my weaknesses?"
+    - "How can I improve my profile?"
+    - Profile completeness.
+    - And more.
 - **Competitor Insights**.
--- User request for competitor insights and comparison.
--- Either directly compare against nearby or similar from a seperate list.
--- Direclty ask AI assistant for insights on competitors.
--- AI Assistant can make suggestions / summarize based on competitor data.
+  - User request for competitor insights and comparison. CHECK
+  - Either directly compare against nearby or similar from a seperate list. CHECK
+  - Direclty ask AI assistant for insights on competitors. CHECK
+  - AI Assistant can make suggestions / summarize based on competitor data. CHECK
 - **Actionable Insights**.
--- AI assistant can provide actionable insights based on the analysis of your profile and competitors.
--- For example:
-  --- "To improve your profile, consider adding more photos."
-  --- "Your competitors have more reviews, consider encouraging customers to leave feedback."
-- **Content Generation**. (Only text for now as stuff such as images are not included in the MVP)
--- Social media post captions
--- Responses to reviews
--- Promotional messages
-- **What if scenarios**.
--- AI assistant can generate "what if" scenarios based on user input.
+  - AI assistant can provide actionable insights based on the analysis of your profile and competitors. CHECK
+  - For example:
+    - "To improve your profile, consider adding more photos."
+    - "Your competitors have more reviews, consider encouraging customers to leave feedback."
+- **Content Generation**. (Only text for now as stuff such as images are not included in the MVP). CHECK
+  - Social media post captions. CHECK
+  - Responses to reviews. CHECK
+  - Promotional messages. CHECK
+- **What if scenarios**. CHECK
+  - AI assistant can generate "what if" scenarios based on user input.
 - **Welcome & Guidance**.
--- The chat starts with a friendly welcome message and example questions for new users, It's AI = The sky's the limit.
+  - The chat starts with a friendly welcome message and example questions for new users, It's AI = The sky's the limit.
 
 ### Out of Scope:
 - **Database**: This is designed as an addon to an existing system, no database included.
@@ -183,7 +183,7 @@ cd profile_comparison
 
 ### Future Improvements / Features:
 - **Context injection for AI**
--- Inject user profile data, competitor data, and other relevant information into the AI prompt for more accurate responses.
+  - Inject user profile data, competitor data, and other relevant information into the AI prompt for more accurate responses.
 - **Continously updating Gamification system**.
 - **Automatic AI made changes**.
 - **Social media integration** Includes AI generated posts from scratch and more.
@@ -201,13 +201,16 @@ cd profile_comparison
 ### TODO:
 - **Full tests**
 - **Bug fixes**: Address known issues:
--- Streaming responses not working properly
+  - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
+  - Streaming responses not working properly
 - **Features**:
--- Instant compare against nearby/similar restaurants
--- Toggle between nearby and similar lists
--- AI response formatting / cleanliness
+  - Instant compare against nearby/similar restaurants
+  - Toggle between nearby and similar lists
+  - AI response formatting / cleanliness
 - **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
-
+- **Quality of life improvements**:
+  - Enter to send to AI, Shift + Enter to add a new line
+  - **AI response formatting**: Ensure AI responses are clean and well-formatted.
 
 
 

@@ -134,13 +134,14 @@ def get_competitors_from_serper(
                 "name": place.get("title", ""),
                 "address": place.get("address", ""),
                 "rating": float(place.get("rating", 0.0)) if place.get("rating") is not None else 0.0,
-                "review_count": int(place.get("reviews", 0)) if place.get("reviews") is not None else 0,
-                "price_level": place.get("price", ""),
+                "review_count": int(place.get("ratingCount", 0)) if place.get("ratingCount") is not None else 0,
+                "price_level": place.get("priceLevel", ""),
                 "category": place.get("category", ""),
                 "description": place.get("description", ""),
                 "hours": place.get("hours", []) if isinstance(place.get("hours", []), list) else [],
                 "menu_url": place.get("menu", ""),
                 "website": place.get("website", ""),
+                "phone": place.get("phoneNumber", ""),
                 "photos": place.get("photos", []) if isinstance(place.get("photos", []), list) else [],
             }
             # Filter out competitors with missing name or address
@@ -152,7 +153,7 @@ def get_competitors_from_serper(
             continue
 
     set_cached_data(cache_key, competitors)
-
+    print(competitors)
     for competitor_dict in competitors:
         try:
             yield BusinessProfile(**competitor_dict)
