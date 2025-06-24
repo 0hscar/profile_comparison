@@ -1,7 +1,7 @@
 <template>
   <section
-    class="sidebar-section card-modern"
     v-if="competitors && competitors.length"
+    class="sidebar-section card-modern"
   >
     <h2 class="sidebar-title card-title-modern">Competitors</h2>
     <div class="competitor-list card-content-modern">
@@ -21,15 +21,15 @@
             {{ comp.name }}
           </a>
           <span v-else class="competitor-name">{{ comp.name }}</span>
-          <span class="competitor-rating" v-if="comp.rating">
+          <span v-if="comp.rating" class="competitor-rating">
             {{ comp.rating }} ★
           </span>
-          <span class="competitor-rating" v-else> N/A </span>
+          <span v-else class="competitor-rating"> N/A </span>
         </div>
-        <div class="competitor-category" v-if="comp.category">
+        <div v-if="comp.category" class="competitor-category">
           {{ comp.category }}
         </div>
-        <div class="competitor-address" v-if="comp.address">
+        <div v-if="comp.address" class="competitor-address">
           {{ comp.address }}
         </div>
         <button class="compare-btn" @click="$emit('compare', comp)">

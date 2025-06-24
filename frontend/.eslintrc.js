@@ -4,6 +4,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+
   parser: "vue-eslint-parser",
   parserOptions: {
     parser: "@babel/eslint-parser",
@@ -28,5 +29,12 @@ module.exports = {
       },
     },
   ],
-  rules: {},
+  rules: {
+    "brace-style": "off",
+    "object-curly-newline": "off",
+    "vue/html-closing-bracket-newline": "off",
+    "vue/block-tag-newline": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/singleline-html-element-content-newline": "off",
+  },
 };

@@ -27,16 +27,16 @@
     </div>
     <form class="gpt-chat-input-row" @submit.prevent="onSend">
       <textarea
+        ref="chatInputRef"
         :value="chatInputProp"
-        @input="
-          $emit('update:chatInputProp', $event.target.value);
-          autoGrow();
-        "
         placeholder="Send a message..."
         class="gpt-chat-input gpt-chat-textarea"
         autocomplete="off"
         rows="1"
-        ref="chatInputRef"
+        @input="
+          $emit('update:chatInputProp', $event.target.value);
+          autoGrow();
+        "
       />
       <button
         class="gpt-chat-send-btn"
