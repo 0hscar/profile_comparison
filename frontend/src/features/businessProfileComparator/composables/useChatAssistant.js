@@ -17,7 +17,7 @@ export function useChatAssistant() {
     {
       role: "assistant",
       content:
-        "👋 Welcome! I'm your Business Profile AI Assistant. You can ask me to help with things like generating social media post captions, simulating the effect of profile changes, analyzing competitors, or getting tips to improve your business profile. Try asking something like: \"Write a catchy Instagram caption for my restaurant\", \"What would happen if I added 10 more photos?\", or \"How can I improve my Google ranking?\"",
+        '👋 Welcome! I\'m your Business Profile AI Assistant. You can ask me to help with things like generating social media post captions, simulating the effect of profile changes, analyzing competitors, or getting tips to improve your business profile. Try asking something like: "Write a catchy Instagram caption for my restaurant", "What would happen if I added 10 more photos?", or "How can I improve my Google ranking?"',
       system: true,
     },
   ]);

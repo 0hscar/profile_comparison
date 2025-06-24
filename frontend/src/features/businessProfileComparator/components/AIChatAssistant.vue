@@ -27,9 +27,9 @@
     </div>
     <form class="gpt-chat-input-row" @submit.prevent="onSend">
       <textarea
-        :value="input"
+        :value="chatInputProp"
         @input="
-          $emit('update:input', $event.target.value);
+          $emit('update:chatInputProp', $event.target.value);
           autoGrow();
         "
         placeholder="Send a message..."
@@ -38,7 +38,10 @@
         rows="1"
         ref="chatInputRef"
       />
-      <button class="gpt-chat-send-btn" :disabled="loading || !input.trim()">
+      <button
+        class="gpt-chat-send-btn"
+        :disabled="loading || !(chatInputProp || '').trim()"
+      >
         <span v-if="!loading">Send</span>
         <span v-else>...</span>
       </button>
@@ -52,10 +55,10 @@ import { ref, nextTick, watch } from "vue";
 const props = defineProps({
   show: { type: Boolean, default: true },
   chatHistory: { type: Array, required: true },
-  input: { type: String, required: true },
+  chatInputProp: { type: String, required: true },
   loading: { type: Boolean, default: false },
 });
-const emit = defineEmits(["update:input", "send"]);
+const emit = defineEmits(["update:chatInputProp", "send"]);
 
 const chatInputRef = ref(null);
 

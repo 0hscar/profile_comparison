@@ -17,51 +17,60 @@
       <!-- Sidebar: Business Search & Competitor List -->
       <aside class="sidebar">
         <!-- Gamification Badges -->
-        <BadgesCard v-if="selectedBusiness" :badges="gamification.badges" />
+        <BadgesCard
+          v-if="profileData.selectedBusiness.value"
+          :badges="profileData.gamification.value.badges"
+        />
         <!-- Competitor List Enhanced -->
         <CompetitorsCard
-          v-if="selectedBusiness"
-          :competitors="competitorList"
-          @compare="insertCompetitorPrompt"
+          v-if="profileData.selectedBusiness.value"
+          :competitors="profileData.competitorList.value"
+          @compare="chatAssistant.insertCompetitorPrompt"
         />
       </aside>
       <!-- Main Content: Profile Analysis & AI Features -->
       <main class="main-content">
         <!-- Combined Profile Info & Health -->
         <ProfileCard
-          v-if="selectedBusiness"
-          :profile="selectedBusiness"
-          :gamification="gamification"
+          v-if="profileData.selectedBusiness.value"
+          :profile="profileData.selectedBusiness.value"
+          :gamification="profileData.gamification.value"
           @edit-profile="goToEditProfile"
         />
         <!-- Unified AI Chat -->
         <AIChatAssistant
-          v-if="selectedBusiness"
+          v-if="profileData.selectedBusiness.value"
           :show="true"
-          :chat-history="chatHistory"
-          :input="chatInput"
-          :loading="chatLoading"
-          @update:input="(val) => (chatInput.value = val)"
-          @send="sendChat"
+          :chat-history="chatAssistant.chatHistory.value"
+          :chat-input-prop="chatAssistant.chatInput.value"
+          :loading="chatAssistant.loading.value"
+          @update:chatInputProp="(val) => (chatAssistant.chatInput.value = val)"
+          @send="chatAssistant.sendChat"
         />
         <!-- Local Market Trends -->
-        <TrendsCard v-if="localTrends.length" :trends="localTrends" />
+        <TrendsCard
+          v-if="profileData.localTrends.value.length"
+          :trends="profileData.localTrends.value"
+        />
         <!-- Photo Insights -->
         <PhotoInsightsCard
-          v-if="photoInsights.length"
-          :insights="photoInsights"
+          v-if="profileData.photoInsights.value.length"
+          :insights="profileData.photoInsights.value"
         />
         <!-- Competitor Alerts -->
         <CompetitorAlertsCard
-          v-if="competitorAlerts.length"
-          :alerts="competitorAlerts"
+          v-if="profileData.competitorAlerts.value.length"
+          :alerts="profileData.competitorAlerts.value"
         />
         <!-- Profile History (Toggleable) -->
-        <ProfileHistoryCard v-if="selectedBusiness" :history="profileHistory" />
+        <ProfileHistoryCard
+          v-if="profileData.selectedBusiness.value"
+          :history="profileData.profileHistory.value"
+        />
 
         <!-- Snapshot Export -->
-        <section v-if="selectedBusiness" class="main-section">
-          <button class="export-btn" @click="exportSnapshot">
+        <section v-if="profileData.selectedBusiness.value" class="main-section">
+          <button class="export-btn" @click="profileData.exportSnapshot">
             Download Snapshot Report
           </button>
         </section>
@@ -89,35 +98,13 @@ defineProps({
   open: { type: Boolean, required: true },
 });
 
-// Composables for state and logic
-const {
-  selectedBusiness,
-  competitorList,
-  gamification,
-  // competitorHighlights,
-  localTrends,
-  photoInsights,
-  profileHistory,
-  competitorAlerts,
-  // loading,
-  fetchAllProfileData,
-  fetchCompetitorProfiles,
-  exportSnapshot,
-} = useProfileData();
-
-const {
-  chatHistory,
-  chatInput,
-  loading: chatLoading,
-  sendChat,
-  insertCompetitorPrompt,
-} = useChatAssistant();
-
-// Unified AI Chat send logic
+// Use the whole composable object (no destructuring) to preserve Vue reactivity for all refs and avoid subtle bugs.
+const profileData = useProfileData();
+const chatAssistant = useChatAssistant();
 
 onMounted(async () => {
-  await fetchAllProfileData();
-  await fetchCompetitorProfiles();
+  await profileData.fetchAllProfileData();
+  await profileData.fetchCompetitorProfiles();
 });
 function goToEditProfile() {
   // Replace with your actual navigation logic, e.g. router.push or emit event
