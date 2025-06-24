@@ -319,7 +319,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from "vue";
 import BadgeCard from "./BadgeCard.vue";
-import * as api from "./api.js";
+import * as api from "../api";
 
 // Slideout open/close prop
 defineProps({

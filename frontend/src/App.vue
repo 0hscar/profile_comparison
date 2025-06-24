@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import BusinessProfileSlideout from "./components/businessProfileTool/BusinessProfileSlideout.vue";
+import BusinessProfileSlideout from "./features/businessProfileComparator/components/BusinessProfileSlideout.vue";
 
 export default {
   name: "App",
