@@ -211,6 +211,7 @@ cd profile_comparison
 - **Quality of life improvements**:
   - Enter to send to AI, Shift + Enter to add a new line
   - **AI response formatting**: Ensure AI responses are clean and well-formatted.
+  - **UI improvements**: Try to remove excess scrolling.
 
 
 

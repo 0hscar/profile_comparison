@@ -16,31 +16,10 @@
     <div class="dashboard-layout">
       <!-- Sidebar: Business Search & Competitor List -->
       <aside class="sidebar">
-        <!-- Business Info -->
-        <section class="sidebar-section" v-if="selectedBusiness">
-          <h2 class="sidebar-title">Business Info</h2>
-          <div class="sidebar-business-info">
-            <div><strong>Name:</strong> {{ selectedBusiness.name }}</div>
-            <div><strong>Address:</strong> {{ selectedBusiness.address }}</div>
-            <div><strong>Phone:</strong> {{ selectedBusiness.phone }}</div>
-            <div>
-              <strong>Website:</strong>
-              <a :href="selectedBusiness.website" target="_blank">{{
-                selectedBusiness.website
-              }}</a>
-            </div>
-            <div>
-              <strong>Category:</strong> {{ selectedBusiness.category }}
-            </div>
-            <div>
-              <strong>Price Level:</strong> {{ selectedBusiness.priceLevel }}
-            </div>
-          </div>
-        </section>
         <!-- Gamification Badges -->
-        <section class="sidebar-section" v-if="selectedBusiness">
-          <h2 class="sidebar-title">Badges</h2>
-          <div class="badges-list">
+        <section class="sidebar-section card-modern" v-if="selectedBusiness">
+          <h2 class="sidebar-title card-title-modern">Badges</h2>
+          <div class="badges-list card-content-modern">
             <BadgeCard
               v-for="badge in gamification.badges"
               :key="badge.name"
@@ -49,9 +28,9 @@
           </div>
         </section>
         <!-- Competitor List Enhanced -->
-        <section class="sidebar-section" v-if="selectedBusiness">
-          <h2 class="sidebar-title">Competitors</h2>
-          <div class="competitor-list">
+        <section class="sidebar-section card-modern" v-if="selectedBusiness">
+          <h2 class="sidebar-title card-title-modern">Competitors</h2>
+          <div class="competitor-list card-content-modern">
             <div
               v-for="comp in competitorList"
               :key="comp.id || comp.name"
@@ -88,108 +67,164 @@
       </aside>
       <!-- Main Content: Profile Analysis & AI Features -->
       <main class="main-content">
-        <!-- Profile Health & Score -->
+        <!-- Combined Profile Info & Health -->
         <section
           v-if="selectedBusiness"
-          class="main-section profile-health-modern"
+          class="main-section card-modern profile-card-gap"
         >
-          <h2 class="main-title">Profile Health</h2>
-          <div class="profile-health-card">
-            <div class="profile-health-header">
-              <span class="profile-health-score-label">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="12"
-                    fill="#2d8cf0"
-                    fill-opacity="0.12"
-                  />
-                  <path
-                    d="M7 13.5L10.5 17L17 10.5"
-                    stroke="#2d8cf0"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                Health Score
+          <div class="profile-card-header">
+            <h2 class="main-title card-title-modern">Profile</h2>
+            <button
+              class="profile-cog-btn"
+              @click="goToEditProfile"
+              aria-label="Edit Profile"
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="10"
+                  fill="#f5f8fa"
+                  stroke="#b0b8c1"
+                  stroke-width="1"
+                />
+                <path
+                  d="M11 7.5A3.5 3.5 0 1 1 7.5 11 3.5 3.5 0 0 1 11 7.5m0-1.5a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 7.5a2.5 2.5 0 1 1 2.5-2.5A2.5 2.5 0 0 1 11 13.5z"
+                  fill="#2d8cf0"
+                />
+                <path
+                  d="M11 4v2M11 16v2M4 11h2M16 11h2M6.22 6.22l1.42 1.42M14.36 14.36l1.42 1.42M6.22 15.78l1.42-1.42M14.36 7.64l1.42-1.42"
+                  stroke="#2d8cf0"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="sidebar-business-info card-content-modern">
+            <div class="info-row">
+              <span class="info-label">Name:</span>
+              <span class="info-value">{{ selectedBusiness.name }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Address:</span>
+              <span class="info-value">{{ selectedBusiness.address }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone:</span>
+              <span class="info-value">{{ selectedBusiness.phone }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Website:</span>
+              <span class="info-value">
+                <a :href="selectedBusiness.website" target="_blank">{{
+                  selectedBusiness.website
+                }}</a>
               </span>
-              <span class="profile-health-score-value"
-                >{{ gamification.score }}%</span
+            </div>
+            <div class="info-row">
+              <span class="info-label">Category:</span>
+              <span class="info-value">{{ selectedBusiness.category }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Price Level:</span>
+              <span class="info-value">{{ selectedBusiness.priceLevel }}</span>
+            </div>
+          </div>
+          <div class="profile-health-header">
+            <span class="profile-health-score-label">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="12"
+                  fill="#2d8cf0"
+                  fill-opacity="0.12"
+                />
+                <path
+                  d="M7 13.5L10.5 17L17 10.5"
+                  stroke="#2d8cf0"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Health Score
+            </span>
+            <span class="profile-health-score-value"
+              >{{ gamification.score }}%</span
+            >
+          </div>
+          <div class="profile-health-bar-outer">
+            <div
+              class="profile-health-bar-inner"
+              :style="{ width: gamification.score + '%' }"
+            ></div>
+          </div>
+          <div v-if="gamification.score === 100" class="score-complete-modern">
+            🎉 Your profile is fully optimized! Keep it fresh for ongoing
+            rewards.
+          </div>
+          <div class="profile-health-stats-row">
+            <div class="profile-health-stat">
+              <span class="stat-label">Rating</span>
+              <span class="stat-value">
+                {{ selectedBusiness && selectedBusiness.rating }}
+                <span
+                  v-if="selectedBusiness && selectedBusiness.review_count"
+                  class="stat-sub"
+                  >({{ selectedBusiness.review_count }} reviews)</span
+                >
+              </span>
+            </div>
+            <div class="profile-health-stat">
+              <span class="stat-label">Recent Reviews</span>
+              <span class="stat-value">
+                {{ selectedBusiness && selectedBusiness.recentReviews }}
+                <span class="stat-sub">(last 3 months)</span>
+              </span>
+            </div>
+            <div class="profile-health-stat">
+              <span class="stat-label">Photos</span>
+              <span class="stat-value">{{
+                selectedBusiness && selectedBusiness.photoCount
+              }}</span>
+            </div>
+            <div class="profile-health-stat">
+              <span class="stat-label">Menu</span>
+              <span class="stat-value">
+                <a
+                  v-if="selectedBusiness && selectedBusiness.menuAvailable"
+                  :href="selectedBusiness && selectedBusiness.menuUrl"
+                  target="_blank"
+                  >View Menu</a
+                >
+                <span v-else>No menu online</span>
+              </span>
+            </div>
+            <div class="profile-health-stat">
+              <span class="stat-label">Completeness</span>
+              <span class="stat-value"
+                >{{
+                  selectedBusiness && selectedBusiness.profileCompleteness
+                }}%</span
               >
             </div>
-            <div class="profile-health-bar-outer">
-              <div
-                class="profile-health-bar-inner"
-                :style="{ width: gamification.score + '%' }"
-              ></div>
-            </div>
-            <div
-              v-if="gamification.score === 100"
-              class="score-complete-modern"
-            >
-              🎉 Your profile is fully optimized! Keep it fresh for ongoing
-              rewards.
-            </div>
-            <div class="profile-health-stats-row">
-              <div class="profile-health-stat">
-                <span class="stat-label">Rating</span>
-                <span class="stat-value">
-                  {{ selectedBusiness && selectedBusiness.rating }}
-                  <span
-                    v-if="selectedBusiness && selectedBusiness.review_count"
-                    class="stat-sub"
-                    >({{ selectedBusiness.review_count }} reviews)</span
-                  >
-                </span>
-              </div>
-              <div class="profile-health-stat">
-                <span class="stat-label">Recent Reviews</span>
-                <span class="stat-value">
-                  {{ selectedBusiness && selectedBusiness.recentReviews }}
-                  <span class="stat-sub">(last 3 months)</span>
-                </span>
-              </div>
-              <div class="profile-health-stat">
-                <span class="stat-label">Photos</span>
-                <span class="stat-value">{{
-                  selectedBusiness && selectedBusiness.photoCount
-                }}</span>
-              </div>
-              <div class="profile-health-stat">
-                <span class="stat-label">Menu</span>
-                <span class="stat-value">
-                  <a
-                    v-if="selectedBusiness && selectedBusiness.menuAvailable"
-                    :href="selectedBusiness && selectedBusiness.menuUrl"
-                    target="_blank"
-                    >View Menu</a
-                  >
-                  <span v-else>No menu online</span>
-                </span>
-              </div>
-              <div class="profile-health-stat">
-                <span class="stat-label">Completeness</span>
-                <span class="stat-value"
-                  >{{
-                    selectedBusiness && selectedBusiness.profileCompleteness
-                  }}%</span
-                >
-              </div>
-              <div class="profile-health-stat">
-                <span class="stat-label">Last Update</span>
-                <span class="stat-value">{{
-                  selectedBusiness && selectedBusiness.lastProfileUpdate
-                }}</span>
-              </div>
+            <div class="profile-health-stat">
+              <span class="stat-label">Last Update</span>
+              <span class="stat-value">{{
+                selectedBusiness && selectedBusiness.lastProfileUpdate
+              }}</span>
             </div>
           </div>
         </section>
         <!-- Unified AI Chat -->
-        <section v-if="selectedBusiness" class="main-section">
-          <h2 class="main-title">AI Chat Assistant</h2>
-          <div class="gpt-chat-history">
+        <section
+          v-if="selectedBusiness"
+          class="main-section card-modern ai-chat-modern"
+        >
+          <h2 class="main-title card-title-modern">AI Chat Assistant</h2>
+          <div class="gpt-chat-history card-content-modern">
             <div
               v-for="(msg, idx) in chatHistory"
               :key="idx"
@@ -439,6 +474,10 @@ onMounted(async () => {
   await fetchAllProfileData();
   await fetchCompetitorProfiles();
 });
+function goToEditProfile() {
+  // Replace with your actual navigation logic, e.g. router.push or emit event
+  window.location.href = "/edit-profile";
+}
 </script>
 
 <style scoped>
@@ -641,6 +680,88 @@ onMounted(async () => {
   font-weight: bold;
   margin-bottom: 0.5rem;
   color: #2d8cf0;
+}
+
+/* --- Modern Card Styles for Sidebar/Main Sections --- */
+.card-modern {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px #2d8cf01a, 0 1.5px 6px #0001;
+  padding: 1.5em 1.3em 1.2em 1.3em;
+  margin-bottom: 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  align-items: stretch;
+}
+
+.profile-card-gap {
+  margin-top: 1.5em;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.profile-cog-btn {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0.1em;
+  margin: 0;
+  cursor: pointer;
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.profile-cog-btn:focus {
+  outline: 2px solid #2d8cf0;
+}
+
+.profile-cog-btn svg {
+  display: block;
+}
+.card-title-modern {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #2d8cf0;
+  margin-bottom: 0.7em;
+  letter-spacing: 0.01em;
+}
+.card-content-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+.ai-chat-modern {
+  padding: 2em 2em 1.5em 2em;
+}
+/* Business Info Row Styling */
+.info-row {
+  display: flex;
+  gap: 0.7em;
+  margin-bottom: 0.2em;
+}
+.info-label {
+  color: #888;
+  font-size: 0.98em;
+  font-weight: 500;
+  min-width: 90px;
+  display: inline-block;
+}
+.info-value {
+  color: #222;
+  font-size: 1.08em;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 /* --- Modern Profile Health Card Styles --- */
