@@ -1,6 +1,21 @@
 <template>
   <section v-if="show" class="main-section card-modern ai-chat-modern">
-    <h2 class="main-title card-title-modern">AI Chat Assistant</h2>
+    <div class="ai-chat-header-flex">
+      <h2 class="main-title card-title-modern">AI Chat Assistant</h2>
+      <select
+        id="llm-model-select"
+        v-model="selectedModel"
+        class="model-select"
+      >
+        <option
+          v-for="model in LLM_MODELS"
+          :key="model.value"
+          :value="model.value"
+        >
+          {{ model.label }}
+        </option>
+      </select>
+    </div>
     <div class="gpt-chat-history card-content-modern">
       <div
         v-for="(msg, idx) in chatHistory"
@@ -39,16 +54,6 @@
         "
         @keydown="onInputKeydown"
       />
-      <select v-model="selectedModel">
-        <option
-          v-for="model in LLM_MODELS"
-          :key="model.value"
-          :value="model.value"
-        >
-          {{ model.label }}
-        </option>
-      </select>
-
       <button
         class="gpt-chat-send-btn"
         :disabled="loading || !(chatInputProp || '').trim()"
@@ -131,6 +136,35 @@ function onSend() {
 </script>
 
 <style scoped>
+.ai-chat-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2em;
+}
+
+.model-select {
+  background: #f7f7fa;
+  border: 1px solid #e6eaf0;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-size: 1.08em;
+  color: #1a2b3c;
+  font-family: inherit;
+  outline: none;
+  transition: border 0.2s;
+  min-width: 160px;
+  box-shadow: 0 1px 2px #0001;
+  cursor: pointer;
+}
+.model-select:focus {
+  border: 1.5px solid #1761a0;
+}
+.model-select option {
+  background: #fff;
+  color: #1a2b3c;
+}
+
 .gpt-chat-history {
   background: #f7f7fa;
   border-radius: 12px;
