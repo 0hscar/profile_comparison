@@ -37,85 +37,85 @@ project-root/
 
 ---
 
-## How to Run
+## How to Run (Updated for Gunicorn & Streaming)
 
 ### Prerequisites
 
 - Python 3.8+
 - Node.js (v16+ recommended) & npm
-- (Optional) [Poetry](https://python-poetry.org/) for Python dependency management
-- (Optional) [pipenv](https://pipenv.pypa.io/) or `venv` for virtual environments
+- (Optional) [Poetry](https://python-poetry.org/) or `venv` for Python dependency management
 
 ---
 
 ### 1. Clone the Repository
 
-You can clone using SSH or HTTPS:
-
-```
-git clone git@github.com:0hscar/profile_comparison.git
-# or
+```bash
 git clone https://github.com/0hscar/profile_comparison.git
-```
-
-Then `cd` into the directory that was created:
-
-```
 cd profile_comparison
 ```
 
 ---
 
-### 2. Backend Setup (Django)
+### 2. Backend Setup (Django + Gunicorn)
 
-1. **Install dependencies:**
-   ```
-   cd backend
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-2. **Set up environment variables:**
-   - Copy `.env.example` to `.env` and fill in your API keys (OpenAI, Serper, etc).
+- Copy `.env.example` to `.env` and fill in your API keys (OpenAI, Serper, etc).
 
-3. **Run migrations:** If you implement database
-   ```
-   python manage.py migrate
-   ```
+- (If you implement a database)
+  ```bash
+  python manage.py migrate
+  ```
 
-4. **Start the backend server:**
-   ```
-   python manage.py runserver
-   ```
+**Start the backend with Gunicorn:**
+```bash
+gunicorn core.wsgi:application -b 127.0.0.1:8000
+```
+- The backend API will be available at `http://localhost:8000`.
 
----
-### Seperate terminals
 ---
 
 ### 3. Frontend Setup (Vue.js)
 
-1. **Install dependencies:**
-   ```
-   cd frontend
-   npm install
-   ```
-
-2. **Run the development server:**
-   ```
-   npm run serve
-   ```
-   - The app will be available at `http://localhost:8080` by default.
+```bash
+cd frontend
+npm install
+npm run serve
+```
+- The app will be available at `http://localhost:8080`.
 
 ---
 
 ### 4. Usage
 
 - Open your browser and go to `http://localhost:8080`.
-- "Hardcoded" user restaurant: "Stefan's Steakhouse" in "Helsinki".
-- Explore AI-generated summaries, suggestions, and competitor details.
+- The frontend now calls the backend directly at `http://localhost:8000/api/...` (not via the Vue CLI proxy).
+- AI chat streaming will work in the browser.
 
 ---
+
+### 5. Troubleshooting
+
+- If you see CORS errors, make sure `django-cors-headers` is installed and configured in `backend/core/settings.py`:
+  ```python
+  INSTALLED_APPS = [
+      # ...,
+      'corsheaders',
+  ]
+  MIDDLEWARE = [
+      'corsheaders.middleware.CorsMiddleware',
+      # ...,
+  ]
+  CORS_ALLOWED_ORIGINS = [
+      "http://localhost:8080",
+  ]
+  ```
+- If you want to stop Gunicorn, press `Ctrl+C` in the terminal running it.
 
 ## What It Contains
 
@@ -202,9 +202,8 @@ cd profile_comparison
 - **Full tests**
 - **Bug fixes**: Address known issues:
   - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
-  - Streaming responses not working properly
+  - Streaming responses not working properly, Works with curl, but not in the frontend.
 - **Features**:
-  - Toggle between nearby and similar lists
   - AI response formatting / cleanliness
 - **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
 - **Finalize restructuring**: Ensure the project structure is clean and logical.
@@ -218,9 +217,14 @@ cd profile_comparison
   - Input field stopped rezising after a few lines.
 - **Features**:
   - Instant compare from competitor list
+  - Toggle between nearby and similar lists
 - **Quality of life improvements**:
   - **AI response formatting**
   - Enter to send to AI, Shift + Enter to add a new line
+
+### WORKING TESTED STREAMING RESPONSE WITH CURL
+curl -N -X POST -H "Content-Type: application/json" -d '{"question": "testing streaming responses"}' http://localhost:8000/api/ai/profile-assistant/
+
 
 
 # OLD BELOW

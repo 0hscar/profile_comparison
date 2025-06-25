@@ -6,9 +6,11 @@
 import axios from "axios";
 
 // Base URLs for your Django backend API (modularized by feature)
-const PROFILE_BASE_URL = "/api/profiles";
-const COMPETITOR_BASE_URL = "/api/competitors";
-const AI_BASE_URL = "/api/ai";
+// Points directly to the localhost to bypass Vue CLI proxy
+// Via proxy used Brotli compression which broke the streaming response
+const PROFILE_BASE_URL = "http://localhost:8000/api/profiles";
+const COMPETITOR_BASE_URL = "http://localhost:8000/api/competitors";
+const AI_BASE_URL = "http://localhost:8000/api/ai";
 
 // Fetch the full business profile
 export async function fetchBusinessProfile() {
