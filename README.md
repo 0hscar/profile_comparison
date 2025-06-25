@@ -246,6 +246,7 @@ npm run serve
   - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
 - **Features**:
 - **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
+  - **README updates**: "What it contains" has old information
 - **Finalize restructuring**: Ensure the project structure is clean and logical.
 - **Quality of life improvements**:
   - **UI improvements**: Try to remove excess scrolling.
