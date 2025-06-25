@@ -35,3 +35,5 @@ Thumbs.db
 .env.*
 # Allow example environment files
 !.env.example
+
+TODO.md

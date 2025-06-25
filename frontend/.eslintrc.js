@@ -4,12 +4,20 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+
   parser: "vue-eslint-parser",
   parserOptions: {
-    ecmaVersion: 12,
+    parser: "@babel/eslint-parser",
+    ecmaVersion: 2020,
     sourceType: "module",
   },
-  extends: ["eslint:recommended", "plugin:vue/vue3-essential"],
+  extends: ["eslint:recommended", "plugin:vue/recommended"],
+  globals: {
+    defineProps: "readonly",
+    defineEmits: "readonly",
+    defineExpose: "readonly",
+    withDefaults: "readonly",
+  },
   overrides: [
     {
       files: ["*.vue", "*.js", "*.ts", "*.spec.js", "*.test.js"],
@@ -21,5 +29,12 @@ module.exports = {
       },
     },
   ],
-  rules: {},
+  rules: {
+    "brace-style": "off",
+    "object-curly-newline": "off",
+    "vue/html-closing-bracket-newline": "off",
+    "vue/block-tag-newline": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/singleline-html-element-content-newline": "off",
+  },
 };
