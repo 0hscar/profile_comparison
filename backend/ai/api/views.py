@@ -13,10 +13,12 @@ import time
 @timeit("Profile Assistant Stream")
 def profile_assistant_stream(request):
     question = request.data.get("question", "")
+    model = request.data.get("model", "gpt-4.1-mini")
+    print(f"Using LLM model: {model}")
     profile = BusinessProfile(**FAKE_PROFILE)
     def stream():
         last_heartbeat = time.time()
-        for chunk in profile_assistant_response(question, profile):
+        for chunk in profile_assistant_response(question, profile, model=model):
             yield chunk
             # Heartbeat every 2 seconds if no chunk is sent
             now = time.time()

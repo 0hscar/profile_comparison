@@ -78,7 +78,11 @@
           :chat-history="chatAssistant.chatHistory.value"
           :chat-input-prop="chatAssistant.chatInput.value"
           :loading="chatAssistant.loading.value"
+          :selected-model="chatAssistant.selectedModel.value"
           @update:chatInputProp="(val) => (chatAssistant.chatInput.value = val)"
+          @update:selectedModel="
+            (val) => (chatAssistant.selectedModel.value = val)
+          "
           @send="chatAssistant.sendChat"
         />
       </aside>

@@ -39,6 +39,16 @@
         "
         @keydown="onInputKeydown"
       />
+      <select v-model="selectedModel">
+        <option
+          v-for="model in LLM_MODELS"
+          :key="model.value"
+          :value="model.value"
+        >
+          {{ model.label }}
+        </option>
+      </select>
+
       <button
         class="gpt-chat-send-btn"
         :disabled="loading || !(chatInputProp || '').trim()"
@@ -54,18 +64,33 @@
 import { ref, nextTick, watch } from "vue";
 import MarkdownIt from "markdown-it";
 import DOMPurify from "dompurify";
+import { LLM_MODELS } from "../composables/useChatAssistant";
 
+// Props from parent/composable
 const props = defineProps({
   show: { type: Boolean, default: true },
   chatHistory: { type: Array, required: true },
   chatInputProp: { type: String, required: true },
   loading: { type: Boolean, default: false },
+  selectedModel: {
+    type: String,
+    required: false,
+    default: LLM_MODELS[0].value,
+  },
 });
-const emit = defineEmits(["update:chatInputProp", "send"]);
+const emit = defineEmits([
+  "update:chatInputProp",
+  "send",
+  "update:selectedModel",
+]);
 const chatInputRef = ref(null);
 const md = new MarkdownIt({
   breaks: true,
 });
+
+// Local model binding for v-model
+const selectedModel = ref(props.selectedModel);
+watch(selectedModel, (val) => emit("update:selectedModel", val));
 
 function renderMarkdownSafe(content) {
   const rawHtml = md.render(content || "");

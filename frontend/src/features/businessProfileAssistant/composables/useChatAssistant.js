@@ -7,6 +7,11 @@
 import { ref } from "vue";
 import * as api from "../api";
 
+export const LLM_MODELS = [
+  { value: "gpt-4.1-mini", label: "GPT-4.1 Mini" },
+  { value: "gpt-4o", label: "GPT-4o" },
+];
+
 /**
  * useChatAssistant composable
  * Handles chat state, streaming, and prompt logic for the AI assistant.
@@ -24,6 +29,9 @@ export function useChatAssistant() {
   const chatInput = ref("");
   const loading = ref(false);
 
+  // Model selection
+  const selectedModel = ref(LLM_MODELS[0].value);
+
   /**
    * Send a chat message to the AI assistant (with streaming response).
    */
@@ -38,13 +46,17 @@ export function useChatAssistant() {
     chatHistory.value.push({ role: "assistant", content: "" });
 
     try {
-      await api.streamProfileAssistant(input, (chunk, fullText) => {
-        // Update the last assistant message as the stream progresses
-        const lastMsg = chatHistory.value[chatHistory.value.length - 1];
-        if (lastMsg && lastMsg.role === "assistant") {
-          lastMsg.content = fullText;
+      await api.streamProfileAssistant(
+        input,
+        selectedModel.value,
+        (chunk, fullText) => {
+          // Update the last assistant message as the stream progresses
+          const lastMsg = chatHistory.value[chatHistory.value.length - 1];
+          if (lastMsg && lastMsg.role === "assistant") {
+            lastMsg.content = fullText;
+          }
         }
-      });
+      );
     } catch (e) {
       const lastMsg = chatHistory.value[chatHistory.value.length - 1];
       if (lastMsg && lastMsg.role === "assistant") {
@@ -84,5 +96,8 @@ Highlight key differences and similarities. Give actionable suggestions to impro
     loading,
     sendChat,
     insertCompetitorPrompt,
+    selectedModel,
+    LLM_MODELS,
+    // ...other exports
   };
 }

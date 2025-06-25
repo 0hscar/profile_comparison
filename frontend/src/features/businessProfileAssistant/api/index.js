@@ -24,11 +24,11 @@ export async function fetchCompetitorsProfiles() {
 }
 
 // Stream profile assistant AI response (conversational)
-export async function streamProfileAssistant(question, onChunk) {
+export async function streamProfileAssistant(question, model, onChunk) {
   const response = await fetch(`${AI_BASE_URL}/profile-assistant/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({ question, model }),
   });
 
   if (!response.body) return;
