@@ -18,7 +18,7 @@
           {{ msg.content }}
         </div>
         <div v-else-if="msg.role === 'assistant'" class="gpt-assistant-bubble">
-          {{ msg.content }}
+          <div v-html="renderMarkdownSafe(msg.content)"></div>
         </div>
         <div v-else-if="msg.role === 'user'" class="gpt-user-bubble">
           {{ msg.content }}
@@ -37,6 +37,7 @@
           $emit('update:chatInputProp', $event.target.value);
           autoGrow();
         "
+        @keydown="onInputKeydown"
       />
       <button
         class="gpt-chat-send-btn"
@@ -51,6 +52,8 @@
 
 <script setup>
 import { ref, nextTick, watch } from "vue";
+import MarkdownIt from "markdown-it";
+import DOMPurify from "dompurify";
 
 const props = defineProps({
   show: { type: Boolean, default: true },
@@ -59,8 +62,15 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
 });
 const emit = defineEmits(["update:chatInputProp", "send"]);
-
 const chatInputRef = ref(null);
+const md = new MarkdownIt({
+  breaks: true,
+});
+
+function renderMarkdownSafe(content) {
+  const rawHtml = md.render(content || "");
+  return DOMPurify.sanitize(rawHtml);
+}
 
 function autoGrow() {
   nextTick(() => {
@@ -77,9 +87,16 @@ function autoGrow() {
   });
 }
 
+function onInputKeydown(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    onSend();
+  }
+}
+
 // Keep textarea in sync with parent input
 watch(
-  () => props.input,
+  () => props.chatInputProp,
   () => autoGrow()
 );
 

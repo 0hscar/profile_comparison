@@ -3,7 +3,6 @@
     v-if="competitors && competitors.length"
     class="sidebar-section card-modern"
   >
-    <h2 class="sidebar-title card-title-modern">Competitors</h2>
     <div class="competitor-list card-content-modern">
       <div
         v-for="comp in competitors"

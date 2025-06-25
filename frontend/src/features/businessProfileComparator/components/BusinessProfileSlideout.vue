@@ -21,10 +21,13 @@
           v-if="profileData.selectedBusiness.value"
           :badges="profileData.gamification.value.badges"
         />
-        <!-- Competitor List Enhanced -->
-        <CompetitorsCard
+        <!-- Competitor List with Toggle -->
+        <CompetitorList
           v-if="profileData.selectedBusiness.value"
-          :competitors="profileData.competitorList.value"
+          :nearby-competitors="profileData.nearbyCompetitors.value"
+          :similar-competitors="profileData.similarCompetitors.value"
+          :mode="profileData.competitorMode.value"
+          @update:mode="profileData.competitorMode.value = $event"
           @compare="chatAssistant.insertCompetitorPrompt"
         />
       </aside>
@@ -47,6 +50,21 @@
           @update:chatInputProp="(val) => (chatAssistant.chatInput.value = val)"
           @send="chatAssistant.sendChat"
         />
+        <!-- Profile History (Toggleable) -->
+        <ProfileHistoryCard
+          v-if="profileData.selectedBusiness.value"
+          :history="profileData.profileHistory.value"
+        />
+
+        <!-- Snapshot Export -->
+        <section v-if="profileData.selectedBusiness.value" class="main-section">
+          <button class="export-btn" @click="profileData.exportSnapshot">
+            Download Snapshot Report
+          </button>
+        </section>
+      </main>
+      <!-- Right Column: Trends, Photo Insights, Competitor Alerts -->
+      <aside class="rightbar">
         <!-- Local Market Trends -->
         <TrendsCard
           v-if="profileData.localTrends.value.length"
@@ -62,19 +80,7 @@
           v-if="profileData.competitorAlerts.value.length"
           :alerts="profileData.competitorAlerts.value"
         />
-        <!-- Profile History (Toggleable) -->
-        <ProfileHistoryCard
-          v-if="profileData.selectedBusiness.value"
-          :history="profileData.profileHistory.value"
-        />
-
-        <!-- Snapshot Export -->
-        <section v-if="profileData.selectedBusiness.value" class="main-section">
-          <button class="export-btn" @click="profileData.exportSnapshot">
-            Download Snapshot Report
-          </button>
-        </section>
-      </main>
+      </aside>
     </div>
   </div>
   <div v-if="open" class="slideout-overlay" @click="$emit('close')" />
@@ -83,7 +89,7 @@
 <script setup>
 import { onMounted } from "vue";
 import BadgesCard from "./BadgesCard.vue";
-import CompetitorsCard from "./CompetitorsCard.vue";
+import CompetitorList from "./CompetitorList.vue";
 import ProfileCard from "./ProfileCard.vue";
 import AIChatAssistant from "./AIChatAssistant.vue";
 import TrendsCard from "./TrendsCard.vue";
@@ -179,8 +185,28 @@ function goToEditProfile() {
   height: 100%;
 }
 .sidebar {
-  flex: 0 0 35%;
-  max-width: 35%;
+  flex: 0 0 22%;
+  max-width: 18vw;
+  background: #f5f8fa;
+  border-radius: 8px;
+  padding: 1.5rem 1rem 1.5rem 1rem;
+  box-shadow: 0 1px 4px #0001;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  align-self: stretch;
+  z-index: 2;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.rightbar {
+  flex: 0 0 18%;
+  max-width: 14vw;
+  min-width: 220px;
   background: #f5f8fa;
   border-radius: 8px;
   padding: 1.5rem 1rem 1.5rem 1rem;
@@ -232,15 +258,28 @@ function goToEditProfile() {
   z-index: 1000;
   transition: opacity 0.2s;
 }
+@media (max-width: 1300px) {
+  .dashboard-layout {
+    gap: 1rem;
+  }
+  .sidebar,
+  .rightbar {
+    max-width: 24vw;
+    min-width: 160px;
+    padding: 1rem 0.5rem 1rem 0.5rem;
+  }
+}
 @media (max-width: 900px) {
   .dashboard-layout {
     flex-direction: column;
     padding: 0 1rem 2rem 1rem;
   }
-  .sidebar {
-    max-height: none;
-    min-height: unset;
+  .sidebar,
+  .rightbar {
+    max-width: none;
+    min-width: unset;
     margin-bottom: 2rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
   }
   .business-profile-slideout {
     width: 100vw;
@@ -250,8 +289,8 @@ function goToEditProfile() {
   }
 }
 .main-content {
-  flex: 1 1 65%;
-  max-width: 65%;
+  flex: 1 1 60%;
+  max-width: 62vw;
   min-width: 0;
   word-break: break-word;
   overflow-x: hidden;

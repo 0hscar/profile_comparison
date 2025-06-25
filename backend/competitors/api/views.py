@@ -14,11 +14,18 @@ def get_competitors(request):
     Returns competitors as a JSON array.
     """
     profile = BusinessProfile(**FAKE_PROFILE)
-    mode = request.query_params.get("mode", "nearby")
     max_results = int(request.query_params.get("max_results", 5))
 
-    competitors = [
+    nearby = [
         competitor.dict()
-        for competitor in get_competitors_from_serper(profile, mode=mode, max_results=max_results)
+        for competitor in get_competitors_from_serper(profile, mode="nearby", max_results=max_results)
     ]
-    return Response(competitors)
+    similar = [
+        competitor.dict()
+        for competitor in get_competitors_from_serper(profile, mode="similar", max_results=max_results)
+    ]
+
+    return Response({
+        "nearby": nearby,
+        "similar": similar
+    })

@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import * as api from "../api";
 
 /**
@@ -8,7 +8,9 @@ import * as api from "../api";
 export function useProfileData() {
   // State
   const selectedBusiness = ref(null);
-  const competitorList = ref([]);
+  const nearbyCompetitors = ref([]);
+  const similarCompetitors = ref([]);
+  const competitorMode = ref("nearby"); // "nearby" or "similar"
   const gamification = ref({ score: 0, badges: [] });
   const competitorHighlights = ref([]);
   const localTrends = ref([]);
@@ -16,6 +18,27 @@ export function useProfileData() {
   const profileHistory = ref([]);
   const competitorAlerts = ref([]);
   const loading = ref(false);
+
+  const competitorList = computed(() =>
+    competitorMode.value === "nearby"
+      ? nearbyCompetitors.value
+      : similarCompetitors.value
+  );
+
+  async function fetchCompetitorProfiles() {
+    try {
+      const competitors = await api.fetchCompetitorsProfiles();
+      nearbyCompetitors.value = Array.isArray(competitors.nearby)
+        ? competitors.nearby
+        : [];
+      similarCompetitors.value = Array.isArray(competitors.similar)
+        ? competitors.similar
+        : [];
+    } catch (e) {
+      nearbyCompetitors.value = [];
+      similarCompetitors.value = [];
+    }
+  }
 
   /**
    * Fetch all business profile data (profile, gamification, trends, insights, etc.)
@@ -53,26 +76,6 @@ export function useProfileData() {
   }
 
   /**
-   * Fetch competitor profiles
-   */
-  async function fetchCompetitorProfiles() {
-    try {
-      const competitors = await api.fetchCompetitorsProfiles();
-      // Ensure competitors is always an array
-      const competitorArray = Array.isArray(competitors)
-        ? competitors
-        : competitors
-        ? Object.values(competitors)
-        : [];
-      competitorList.value = competitorArray.filter(
-        (comp) => comp.name && comp.address
-      );
-    } catch (e) {
-      competitorList.value = [];
-    }
-  }
-
-  /**
    * Export snapshot (stub for future implementation)
    */
   function exportSnapshot() {
@@ -83,6 +86,9 @@ export function useProfileData() {
     // State
     selectedBusiness,
     competitorList,
+    competitorMode,
+    nearbyCompetitors,
+    similarCompetitors,
     gamification,
     competitorHighlights,
     localTrends,

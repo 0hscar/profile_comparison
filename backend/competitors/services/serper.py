@@ -96,7 +96,6 @@ def get_competitors_from_serper(
             continue
 
     set_cached_data(cache_key, competitors)
-    print(competitors)
     for competitor_dict in competitors:
         try:
             yield BusinessProfile(**competitor_dict)
