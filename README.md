@@ -245,6 +245,7 @@ npm run serve
 - **Bug fixes**: Address known issues:
   - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
 - **Features**:
+  - **AI model selection**: Update backend to allow passed parameters for AI model selection.
 - **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
 - **Finalize restructuring**: Ensure the project structure is clean and logical.
 - **Quality of life improvements**:
