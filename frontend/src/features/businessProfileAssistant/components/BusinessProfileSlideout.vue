@@ -40,32 +40,12 @@
           :gamification="profileData.gamification.value"
           @edit-profile="goToEditProfile"
         />
-        <!-- Unified AI Chat -->
-        <AIChatAssistant
-          v-if="profileData.selectedBusiness.value"
-          :show="true"
-          :chat-history="chatAssistant.chatHistory.value"
-          :chat-input-prop="chatAssistant.chatInput.value"
-          :loading="chatAssistant.loading.value"
-          @update:chatInputProp="(val) => (chatAssistant.chatInput.value = val)"
-          @send="chatAssistant.sendChat"
-        />
+
         <!-- Profile History (Toggleable) -->
         <ProfileHistoryCard
           v-if="profileData.selectedBusiness.value"
           :history="profileData.profileHistory.value"
         />
-
-        <!-- Snapshot Export -->
-        <section v-if="profileData.selectedBusiness.value" class="main-section">
-          <button class="export-btn" @click="profileData.exportSnapshot">
-            Download Snapshot Report
-          </button>
-        </section>
-      </main>
-      <!-- Right Column: Trends, Photo Insights, Competitor Alerts -->
-      <aside class="rightbar">
-        <!-- Local Market Trends -->
         <TrendsCard
           v-if="profileData.localTrends.value.length"
           :trends="profileData.localTrends.value"
@@ -79,6 +59,27 @@
         <CompetitorAlertsCard
           v-if="profileData.competitorAlerts.value.length"
           :alerts="profileData.competitorAlerts.value"
+        />
+
+        <!-- Snapshot Export -->
+        <section v-if="profileData.selectedBusiness.value" class="main-section">
+          <button class="export-btn" @click="profileData.exportSnapshot">
+            Download Snapshot Report
+          </button>
+        </section>
+      </main>
+      <!-- Right Column: Trends, Photo Insights, Competitor Alerts -->
+      <aside class="rightbar">
+        <!-- Local Market Trends -->
+        <!-- Unified AI Chat -->
+        <AIChatAssistant
+          v-if="profileData.selectedBusiness.value"
+          :show="true"
+          :chat-history="chatAssistant.chatHistory.value"
+          :chat-input-prop="chatAssistant.chatInput.value"
+          :loading="chatAssistant.loading.value"
+          @update:chatInputProp="(val) => (chatAssistant.chatInput.value = val)"
+          @send="chatAssistant.sendChat"
         />
       </aside>
     </div>
@@ -123,7 +124,7 @@ function goToEditProfile() {
   position: fixed;
   top: 0;
   right: 0;
-  width: clamp(960px, 75vw, 100vw);
+  width: 75vw;
   min-width: 0;
   max-width: 100vw;
   height: 100vh;
@@ -133,9 +134,27 @@ function goToEditProfile() {
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.77, 0, 0.18, 1);
   overflow: hidden;
+  overflow-x: hidden;
   padding: 0;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+/* Responsive: 75vw above 2000px, 85vw between 1901px and 2000px, fullscreen at 1900px or less */
+@media (max-width: 2000px) {
+  .business-profile-slideout {
+    width: 85vw;
+    max-width: 100vw;
+  }
+}
+
+@media (max-width: 1900px) {
+  .business-profile-slideout {
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 0;
+  }
 }
 .business-profile-slideout.open {
   transform: translateX(0);
@@ -150,7 +169,7 @@ function goToEditProfile() {
   justify-content: center;
   padding: 1.2rem 2.5rem 1.2rem 2.5rem;
   border-bottom: 1px solid #e6eaf0;
-  min-height: 64px;
+  min-height: 24px;
 }
 .slideout-sticky-header h1 {
   flex: 1 1 auto;
@@ -178,15 +197,18 @@ function goToEditProfile() {
 .dashboard-layout {
   display: flex;
   flex-direction: row;
-  gap: 2rem;
+  gap: 1rem;
   padding: 0 2.5rem 2.5rem 2.5rem;
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 .sidebar {
-  flex: 0 0 22%;
-  max-width: 18vw;
+  flex: 0 0 20%;
+  max-width: 20vw;
+  min-width: 120px;
   background: #f5f8fa;
   border-radius: 8px;
   padding: 1.5rem 1rem 1.5rem 1rem;
@@ -204,9 +226,10 @@ function goToEditProfile() {
   gap: 2rem;
 }
 .rightbar {
-  flex: 0 0 18%;
-  max-width: 14vw;
-  min-width: 220px;
+  flex: 0 0 29%;
+  max-width: 29vw;
+  min-width: 0;
+  box-sizing: border-box;
   background: #f5f8fa;
   border-radius: 8px;
   padding: 1.5rem 1rem 1.5rem 1rem;
@@ -218,10 +241,34 @@ function goToEditProfile() {
   position: relative;
   align-self: stretch;
   z-index: 2;
-  height: auto;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
+}
+
+.rightbar > * {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.rightbar .ai-chat-modern {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .sidebar-section {
   margin-bottom: 2rem;
@@ -289,9 +336,10 @@ function goToEditProfile() {
   }
 }
 .main-content {
-  flex: 1 1 60%;
-  max-width: 62vw;
+  flex: 0 0 50%;
+  max-width: 50vw;
   min-width: 0;
+  box-sizing: border-box;
   word-break: break-word;
   overflow-x: hidden;
   overflow-y: auto;
@@ -301,5 +349,6 @@ function goToEditProfile() {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  padding-right: 2.5rem; /* Match the left gap/padding */
 }
 </style>

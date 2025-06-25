@@ -16,14 +16,8 @@ def get_competitors(request):
     profile = BusinessProfile(**FAKE_PROFILE)
     max_results = int(request.query_params.get("max_results", 5))
 
-    nearby = [
-        competitor.dict()
-        for competitor in get_competitors_from_serper(profile, mode="nearby", max_results=max_results)
-    ]
-    similar = [
-        competitor.dict()
-        for competitor in get_competitors_from_serper(profile, mode="similar", max_results=max_results)
-    ]
+    nearby = list(get_competitors_from_serper(profile, mode="nearby", max_results=max_results))
+    similar = list(get_competitors_from_serper(profile, mode="similar", max_results=max_results))
 
     return Response({
         "nearby": nearby,

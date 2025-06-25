@@ -111,13 +111,14 @@ function onSend() {
   border-radius: 12px;
   padding: 2em 1.5em 1em 1.5em;
   margin-bottom: 1.5em;
-  max-height: 600px;
-  min-height: 350px;
-  overflow-y: auto;
   border: 1px solid #e6eaf0;
   display: flex;
   flex-direction: column;
   gap: 1.2em;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
 }
 .gpt-message {
   display: flex;
@@ -170,6 +171,7 @@ function onSend() {
   gap: 0.7em;
   margin-top: 1em;
   align-items: center;
+  flex: 0 0 auto;
 }
 .gpt-chat-input {
   flex: 1;

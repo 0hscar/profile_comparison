@@ -11,8 +11,8 @@
 defineProps({
   alerts: {
     type: Array,
-    required: true
-  }
+    required: true,
+  },
 });
 </script>
 

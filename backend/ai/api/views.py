@@ -4,7 +4,7 @@ from django.http import StreamingHttpResponse, JsonResponse
 from profiles.models.business_profile import BusinessProfile
 from profiles.services.business_profile import profile_assistant_response
 from competitors.services.serper import get_competitors_from_serper
-from profiles.utils.timing_utils import timeit
+from core.timing_utils import timeit
 from profiles.mockdata.fake_profile import FAKE_PROFILE
 import time
 

@@ -1,19 +1,29 @@
 from typing import List, Dict, Any, Generator
 import os
 import requests
-from profiles.utils.cache_utils import check_for_cached_data, set_cached_data, safe_cache_key
+import hashlib
+import json
+from core.cache_utils import cache_generator_response, safe_cache_key
 from profiles.models.business_profile import BusinessProfile
 
+def serper_cache_key(profile, mode="nearby", max_results=5):
+    base = json.dumps({
+        "profile": profile.json(),
+        "mode": mode,
+        "max_results": max_results
+    }, sort_keys=True)
+    return safe_cache_key("serper_competitors:" + hashlib.sha256(base.encode()).hexdigest())
+
+@cache_generator_response(serper_cache_key)
 def get_competitors_from_serper(
     profile: BusinessProfile,
     mode: str = "nearby",
     max_results: int = 5
-) -> Generator[BusinessProfile, None, None]:
+) -> Generator[Dict, None, None]:
     """
     Uses the Serper API to search for business competitors.
     mode: "nearby" (default) or "similar"
-    Returns a generator of BusinessProfile objects.
-    Now uses only Serper API and caches results for scalability.
+    Returns a generator of competitor dicts (serializable for caching).
     """
 
     # Build the search query
@@ -23,18 +33,6 @@ def get_competitors_from_serper(
         query = f"{profile.category} similar to {profile.name} in {profile.address}"
     else:
         raise ValueError("mode must be 'nearby' or 'similar'")
-
-    cache_key = safe_cache_key(
-        f"serper_competitors:{query}|max_results={max_results}"
-    )
-    cached = check_for_cached_data(cache_key)
-    if cached:
-        for competitor_dict in cached:
-            try:
-                yield BusinessProfile(**competitor_dict)
-            except Exception:
-                continue
-        return
 
     serper_api_key = os.environ.get("SERPER_API_KEY")
     if not serper_api_key:
@@ -70,7 +68,6 @@ def get_competitors_from_serper(
 
     places = data.get("places", [])[:max_results]
 
-    competitors = []
     for place in places:
         try:
             competitor = {
@@ -90,15 +87,7 @@ def get_competitors_from_serper(
             # Filter out competitors with missing name or address
             if not competitor["name"] or not competitor["address"]:
                 continue
-            competitors.append(competitor)
+            yield competitor
         except Exception as e:
             print(f"Error mapping competitor data: {e}")
-            continue
-
-    set_cached_data(cache_key, competitors)
-    for competitor_dict in competitors:
-        try:
-            yield BusinessProfile(**competitor_dict)
-        except Exception as e:
-            print(f"Error creating BusinessProfile from dict: {e}")
             continue
