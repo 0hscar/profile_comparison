@@ -165,6 +165,45 @@ npm run serve
 
 ## Running Tests
 
+---
+
+## Running with Docker
+
+You can use Docker to build and run both the backend and frontend easily, without installing dependencies locally.
+
+### Build and Run Backend
+
+```bash
+# From project root
+docker build -t business-profile-backend -f backend/Dockerfile .
+docker run --rm -it -p 8000:8000 business-profile-backend
+```
+
+### Build and Run Frontend
+
+```bash
+# From project root
+docker build -t business-profile-frontend -f frontend/Dockerfile .
+docker run --rm -it -p 8080:8080 business-profile-frontend
+```
+
+### Using Docker Compose
+
+You can run both backend and frontend together with:
+
+```bash
+docker-compose up --build
+```
+
+This will start both services and map ports 8000 (backend) and 8080 (frontend) to your localhost.
+
+> **Note:**  
+> You may need to set environment variables (such as `OPENAI_API_KEY`) in your `docker-compose.yml` or with `docker run -e`.
+
+---
+
+## Running Tests
+
 ### Backend (Django)
 
 You can run backend tests using Django’s test runner or pytest.
@@ -216,21 +255,6 @@ npx jest path/to/your/testfile.spec.js
 
 ---
 
-
-## What It Contains
-
-- **Backend (Django):**
-  - API endpoints for fetching user restaurant, nearby and similar groups.
-  - AI integration for generating summaries and insights.
-  - Caching for performance.
-
-- **Frontend (Vue.js):**
-  - Responsive UI for input, results, and interactive cards.
-  - Toggle between nearby and similar restaurants.
-  - Expandable/collapsible restaurant cards.
-  - Loading animations and error handling.
-
----
 
 ## Development Notes
 
@@ -299,18 +323,22 @@ npx jest path/to/your/testfile.spec.js
 
 
 ### TODO:
-- **Full tests**
+- **Full tests**:
+  - **Backend**:
+    - No new needed atm
+  - **Frontend**:
+    - No new needed atm
 - **Bug fixes**: Address known issues:
   - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
 - **Features**:
 - **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
-  - **README updates**: "What it contains" has old information
 - **Finalize restructuring**: Ensure the project structure is clean and logical.
 - **Quality of life improvements**:
   - **UI improvements**: Try to remove excess scrolling.
 
 
 ### TODO - Done
+- **Tests**
 - **Bugs fixed**:
   - Input field stopped rezising after a few lines.
   - Streaming responses

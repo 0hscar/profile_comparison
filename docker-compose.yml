@@ -1,0 +1,44 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: business-profile-backend
+    working_dir: /app
+    environment:
+      # Set your environment variables here
+      DJANGO_SETTINGS_MODULE: "core.settings"
+      # - OPENAI_API_KEY=your_openai_api_key
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    # Uncomment if you want to wait for DB or other services
+    # depends_on:
+    #   - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: business-profile-frontend
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/app
+    # If your frontend expects the backend at a specific host, set env or proxy config
+# Optional: Add a database service if needed in the future
+#   db:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_DB: mydb
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#
+# volumes:
+#   postgres_data:
