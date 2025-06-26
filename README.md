@@ -161,9 +161,7 @@ npm run serve
   ```
 - If you want to stop Gunicorn, press `Ctrl+C` in the terminal running it.
 
----
 
-## Running Tests
 
 ---
 
@@ -197,7 +195,7 @@ docker-compose up --build
 
 This will start both services and map ports 8000 (backend) and 8080 (frontend) to your localhost.
 
-> **Note:**  
+> **Note:**
 > You may need to set environment variables (such as `OPENAI_API_KEY`) in your `docker-compose.yml` or with `docker run -e`.
 
 ---
