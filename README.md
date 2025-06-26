@@ -50,6 +50,8 @@ project-root/
 
 ---
 
+
+
 ## Features
 
 - **AI Business Profile Assistant:**
@@ -158,6 +160,62 @@ npm run serve
   ]
   ```
 - If you want to stop Gunicorn, press `Ctrl+C` in the terminal running it.
+
+---
+
+## Running Tests
+
+### Backend (Django)
+
+You can run backend tests using Django’s test runner or pytest.
+
+**With Django:**
+```bash
+# Run all backend tests
+python manage.py test
+
+# Run tests for a specific app (e.g., ai, profiles, competitors)
+python manage.py test ai
+python manage.py test profiles
+python manage.py test competitors
+```
+
+**With pytest (if installed):**
+```bash
+# Run all backend tests
+pytest backend/
+
+# Run tests for a specific service or app
+pytest backend/profiles/services/tests/
+```
+
+> **Note:**
+> Make sure your virtual environment is activated before running tests.
+> For fish shell users:
+> ```
+> source venv/bin/activate.fish
+> ```
+
+### Frontend (Vue/Jest)
+
+You can run frontend unit and integration tests using npm scripts.
+
+```bash
+cd frontend
+
+# Run all frontend tests
+npm test
+# or
+npm run test
+```
+
+You can also run a specific test file with:
+```bash
+npx jest path/to/your/testfile.spec.js
+```
+
+---
+
 
 ## What It Contains
 
