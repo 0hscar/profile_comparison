@@ -52,8 +52,8 @@ def profile_assistant_response(
             {"role": "system", "content": systemPrompt},
             {"role": "user", "content": userPrompt}
         ],
-        max_tokens=256,
-        temperature=0.7,
+        max_tokens=1024,
+        temperature=0.4,
         stream=True,
     )
     for chunk in stream:
