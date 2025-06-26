@@ -7,6 +7,9 @@ module.exports = {
     "^.+\\.vue$": "vue-jest",
     "^.+\\.js$": "babel-jest",
   },
+  transformIgnorePatterns: [
+    "/node_modules/(?!axios)", // ← force Jest to transform axios ESM
+  ],
   testMatch: ["**/*.spec.js"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

@@ -14,17 +14,26 @@ import time
 def profile_assistant_stream(request):
     question = request.data.get("question", "")
     model = request.data.get("model", "gpt-4.1-mini")
-    print(f"Using LLM model: {model}")
     profile = BusinessProfile(**FAKE_PROFILE)
+    if not question:
+        return JsonResponse({"error": "Missing 'question' in request."}, status=400)
+    if not model:
+        return JsonResponse({"error": "Missing 'model' in request."}, status=400)
+    if not profile:
+        return JsonResponse({"error": "Profile could not be loaded."}, status=500)
+
+
+
     def stream():
-        last_heartbeat = time.time()
-        for chunk in profile_assistant_response(question, profile, model=model):
-            yield chunk
-            # Heartbeat every 2 seconds if no chunk is sent
-            now = time.time()
-            if now - last_heartbeat > 2:
-                yield " "  # send a space as heartbeat
-                last_heartbeat = now
-        # Final heartbeat to ensure flush
-        yield " "
+        try:
+            last_heartbeat = time.time()
+            for chunk in profile_assistant_response(question, profile, model=model):
+                yield chunk
+                now = time.time()
+                if now - last_heartbeat > 2:
+                    yield " "
+                    last_heartbeat = now
+            yield " "
+        except Exception:
+            yield "Issue with AI response"
     return StreamingHttpResponse(stream(), content_type="text/event-stream")

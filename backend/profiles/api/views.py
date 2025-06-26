@@ -7,6 +7,9 @@ from profiles.mockdata.fake_profile import FAKE_PROFILE
 
 
 class BusinessProfileView(APIView):
+    """
+    Retrieval of a fake business profile (Swapped for real for production).
+    """
     permission_classes = [AllowAny]
     def get(self, request):
         return Response(FAKE_PROFILE)

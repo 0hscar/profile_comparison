@@ -50,6 +50,8 @@ project-root/
 
 ---
 
+
+
 ## Features
 
 - **AI Business Profile Assistant:**
@@ -159,20 +161,100 @@ npm run serve
   ```
 - If you want to stop Gunicorn, press `Ctrl+C` in the terminal running it.
 
-## What It Contains
+---
 
-- **Backend (Django):**
-  - API endpoints for fetching user restaurant, nearby and similar groups.
-  - AI integration for generating summaries and insights.
-  - Caching for performance.
-
-- **Frontend (Vue.js):**
-  - Responsive UI for input, results, and interactive cards.
-  - Toggle between nearby and similar restaurants.
-  - Expandable/collapsible restaurant cards.
-  - Loading animations and error handling.
+## Running Tests
 
 ---
+
+## Running with Docker
+
+You can use Docker to build and run both the backend and frontend easily, without installing dependencies locally.
+
+### Build and Run Backend
+
+```bash
+# From project root
+docker build -t business-profile-backend -f backend/Dockerfile .
+docker run --rm -it -p 8000:8000 business-profile-backend
+```
+
+### Build and Run Frontend
+
+```bash
+# From project root
+docker build -t business-profile-frontend -f frontend/Dockerfile .
+docker run --rm -it -p 8080:8080 business-profile-frontend
+```
+
+### Using Docker Compose
+
+You can run both backend and frontend together with:
+
+```bash
+docker-compose up --build
+```
+
+This will start both services and map ports 8000 (backend) and 8080 (frontend) to your localhost.
+
+> **Note:**  
+> You may need to set environment variables (such as `OPENAI_API_KEY`) in your `docker-compose.yml` or with `docker run -e`.
+
+---
+
+## Running Tests
+
+### Backend (Django)
+
+You can run backend tests using Django’s test runner or pytest.
+
+**With Django:**
+```bash
+# Run all backend tests
+python manage.py test
+
+# Run tests for a specific app (e.g., ai, profiles, competitors)
+python manage.py test ai
+python manage.py test profiles
+python manage.py test competitors
+```
+
+**With pytest (if installed):**
+```bash
+# Run all backend tests
+pytest backend/
+
+# Run tests for a specific service or app
+pytest backend/profiles/services/tests/
+```
+
+> **Note:**
+> Make sure your virtual environment is activated before running tests.
+> For fish shell users:
+> ```
+> source venv/bin/activate.fish
+> ```
+
+### Frontend (Vue/Jest)
+
+You can run frontend unit and integration tests using npm scripts.
+
+```bash
+cd frontend
+
+# Run all frontend tests
+npm test
+# or
+npm run test
+```
+
+You can also run a specific test file with:
+```bash
+npx jest path/to/your/testfile.spec.js
+```
+
+---
+
 
 ## Development Notes
 
@@ -241,7 +323,11 @@ npm run serve
 
 
 ### TODO:
-- **Full tests**
+- **Full tests**:
+  - **Backend**:
+    - No new needed atm
+  - **Frontend**:
+    - No new needed atm
 - **Bug fixes**: Address known issues:
   - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
 - **Features**:
@@ -252,6 +338,7 @@ npm run serve
 
 
 ### TODO - Done
+- **Tests**
 - **Bugs fixed**:
   - Input field stopped rezising after a few lines.
   - Streaming responses
