@@ -262,6 +262,98 @@ npx jest path/to/your/testfile.spec.js
 
 # Version History
 
+## Ver 1.0
+
+### Scope:
+- **AI-powered business profile**.
+  - Modern Chat style Assistant.
+  - Interaction through a single input field.
+  - Streaming responses.
+- **Profile Analysis**.
+  - Ask AI assistant to analyze your business profile, such as:
+    - "What are my strengths?"
+    - "What are my weaknesses?"
+    - "How can I improve my profile?"
+    - Profile completeness.
+    - And more.
+- **Competitor Insights**.
+  - User request for competitor insights and comparison.
+  - Either directly compare against nearby or similar from a seperate list.
+  - Direclty ask AI assistant for insights on competitors.
+  - AI Assistant can make suggestions / summarize based on competitor data.
+- **Actionable Insights**.
+  - AI assistant can provide actionable insights based on the analysis of your profile and competitors.
+  - For example:
+    - "To improve your profile, consider adding more photos."
+    - "Your competitors have more reviews, consider encouraging customers to leave feedback."
+- **Content Generation**. (Only text for now as stuff such as images are not included in the MVP).
+  - Social media post captions.
+  - Responses to reviews.
+  - Promotional messages.
+- **What if scenarios**.
+  - AI assistant can generate "what if" scenarios based on user input.
+- **Welcome & Guidance**.
+  - The chat starts with a friendly welcome message and example questions for new users, It's AI = The sky's the limit.
+- **Gamification**. Based on mock data.
+  - Track badges / achievements for completed tasks, such as profile analysis, competitor insights, and content generation, profile improvements, etc.
+
+
+### Out of Scope:
+- **Database**: This is designed as an addon to an existing system, no database included.
+- **Web Scraping**: Not included in the MVP, but can be added later for more data sources. (browse.ai recommended. MIGHT BE ADDED IF TIME ALLOWS)
+  - Goal is to integrate browse.ai scaped data into the AI prompt for more accurate responsesm, instead of only Serper API data.
+- **Charts & Images**: Not included in the MVP, but can be added later for visualizing data - AI generated.
+- **Social media integration**: Not included in the MVP, but can be added later for posting content directly to social media platforms.
+- **AI Created changes**: Not included in the MVP, but can be added later for automatic profile improvements based on AI suggestions.
+- **AI Social media posts**: Not included in the MVP, but can be added later for posting content directly to social media platforms.
+- **Context access for AI**: Currently only has the users profile data automatically injected into the AI prompt. (Direct compare auto fills the input field with specific competitor data)
+
+
+### Future Improvements / Features:
+- **Context injection for AI**
+  - Give full context access to the AI assistant.
+- **Continously updating Gamification system**.
+- **Automatic AI made changes**.
+- **Social media integration** Includes AI generated posts from scratch and more.
+- **Fully combined Serper Search + Browse.ai Web scraping**
+
+### Future Serper search + Web scrape workflow: --> Version 1.1
+- Serper API to search web using user input.
+- Browse.ai to scrape the search results for more detailed data.
+- Inject the scraped data into the AI prompt for more accurate and detailed responses.
+- Requires some kind of filtering to avoid extensive API calls when it's specifically asked for.
+
+### User Experience:
+- User opens the app and have a slideout profile including AI assistant, nearby and similar restaurants.
+- The main content is the AI assistant chat interface.
+- User can ask questions, request insights, or compare their profile with nearby/similar restaurants.
+- The user gets a quick access AI assistant that can handle various tasks related to their business profile (AI handled changes as future feature)
+- Track badges / achievements for completed tasks, such as profile analysis, competitor insights, and content generation, profile improvements, etc.
+
+
+
+### TODO:
+- **Full tests**:
+  - **Backend**:
+    - No new needed atm
+  - **Frontend**:
+    - No new needed atm
+- **Bug fixes**: Address known issues:
+  - None at the moment.
+- **Features**:
+  - None at the moment.
+- **Cleanup**:
+  - None at the moment.
+- **Quality of life improvements**:
+  - **UI improvements**: Try to remove excess scrolling. --> Version 1.0.1
+
+
+### TODO - Done
+- **Features**:
+  - Docker support for backend and frontend.
+
+
+
 ## Ver0.3
 
 ### Scope:
@@ -327,10 +419,9 @@ npx jest path/to/your/testfile.spec.js
   - **Frontend**:
     - No new needed atm
 - **Bug fixes**: Address known issues:
-  - AI answers adding stuff like "CustomersNone" or Feel free to use this as "isNone" in the response.
 - **Features**:
-- **Cleanup**: Codebase cleaning, remove unused files and comments. A MUST.
-- **Finalize restructuring**: Ensure the project structure is clean and logical.
+- **Cleanup**:
+- **Finalize restructuring**:
 - **Quality of life improvements**:
   - **UI improvements**: Try to remove excess scrolling.
 
@@ -340,10 +431,13 @@ npx jest path/to/your/testfile.spec.js
 - **Bugs fixed**:
   - Input field stopped rezising after a few lines.
   - Streaming responses
+  - None in AI responses, such as "CustomersNone" or "isNone" in the response.
 - **Features**:
   - Instant compare from competitor list
   - Toggle between nearby and similar lists
   - AI model selection, OpenAI only for now
+- **Cleanup**:
+- **Finalize restructuring**:
 - **Quality of life improvements**:
   - **AI response formatting**
   - Enter to send to AI, Shift + Enter to add a new line
