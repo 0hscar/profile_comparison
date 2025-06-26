@@ -35,25 +35,28 @@ def profile_assistant_response(
         raise ValueError(f"Model '{model}' is not in the list of allowed models: {ALLOWED_LLM_MODELS}")
 
     client = get_openai_client()
-    prompt = f"""
-    You are a helpful business advisor. Given the following business profile, answer the user's question in a friendly, actionable way.
+    systemPrompt = f"""
+    You are a helpful business advisor. Given the following users business profile, answer the user's question in a friendly, actionable way.
 
-    Business:
-    {profile.json()}
+    User business:
+    {profile.model_dump_json}
+    """
 
+    userPrompt = f"""
     User question:
     {question}
     """
     stream = client.chat.completions.create(
         model=model,
         messages=[
-            {"role": "system", "content": "You are a helpful business advisor."},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": systemPrompt},
+            {"role": "user", "content": userPrompt}
         ],
         max_tokens=256,
         temperature=0.7,
         stream=True,
     )
     for chunk in stream:
-        if hasattr(chunk.choices[0].delta, "content"):
-            yield chunk.choices[0].delta.content
+        content = getattr(chunk.choices[0].delta, "content", None)
+        if content:
+            yield content
